@@ -1,31 +1,4 @@
 #+TITLE: OT Data Ingest Utility Tools
-#+OPTIONS: ^:nil
-#+DATE: <2019-02-28 Thu>
-
-# Org Mode Notes: 
-# ------------------------------------------------------------------------
-#  1.  go to Org -> HyperLinks -> Literal Links to show full paths so that I
-#  can do a search and replace
-#  2.  C-U C-U TAB to collapse all
-#  3.  C-U C-U C-U TAB to reveal all
-#  4.  To indent and fram a section of text put #+BEGIN_EXAMPLE at the
-#      beginning and #+END_EXAMPLE at the end of the section of text.
-#  5.  C-c C-c toggles check box
-#  6.  C-c C-l lets you put in links, or rename links
-#  7.  * Title
-#  8.  ** SubTitle1
-#  9.  *** SubTitle2
-#  10.  * Check List example
-#         - [ ] item1
-#         - [ ] item2
-#  11.  [[path of link][link name]  add the closing "]" to hide the path
-#  12.  To indent and frame a section of text put #+BEGIN_EXAMPLE at the
-#       beginning and #+END_EXAMPLE at the end of the section of text.
-#  13.  Table example:
-#        |Spacecraft   |Type   |time interval|
-#        |-------------+-------+----------|
-#        |Meteosat-9   |Channels|3h|
-# ------------------------------------------------------------------------
 
 * Summary
 -  This repo consists of python scripts and templates to better automate
@@ -46,4 +19,5 @@ checks for uniformity of values amoung all the files.
 
    This will set up the directory structure with all the necessary
    template files.
--  edit the file, ingest_shortname.py as necessary.
+-  edit the file, ingest_shortname.py as necessary.  Specify the
+   location of the data, name of log files, etc.
