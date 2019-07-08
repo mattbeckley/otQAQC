@@ -14,13 +14,14 @@ import ElapsedTime as et
 
 #inputs:
 #----------------------------------------------------------------------
-shortname    = 'NZ18_Marlbo'
+#Best to namne working directory as an OT shortname
 ingestBase   = os.getcwd()
+shortname    = os.path.basename(ingestBase)
 dataBase     = '/volumes/OT6TB/NZ18_Marlbo/'
 las_dir      = '/volumes/OT6TB/NZ18_Marlbo/LAZ'
 output_dir   = os.path.join(ingestBase,shortname,'logs')
 logfile      = os.path.join(ingestBase,'logs',shortname+'_PDALInfoLog.txt')
-ingestLog    = os.path.join(ingestBase,'logs',shortname+'_ingestLog.txt'
+ingestLog    = os.path.join(ingestBase,'logs',shortname+'_ingestLog.txt')
 bounds_base  = os.path.join(ingestBase,shortname,'bounds')
 bounds_PDAL          = os.path.join(bounds_base,'Boundary_PDAL.shp')
 bounds_PDALmerge     = os.path.join(bounds_base,'Boundary_PDALMerged.shp')

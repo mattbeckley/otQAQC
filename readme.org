@@ -46,3 +46,4 @@ checks for uniformity of values amoung all the files.
 
    This will set up the directory structure with all the necessary
    template files.
+-  edit the file, ingest_shortname.py as necessary.
