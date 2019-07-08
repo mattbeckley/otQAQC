@@ -7,7 +7,7 @@ from datetime import datetime
 from osgeo import gdal,osr
 from subprocess import Popen, PIPE
 from progress.bar import Bar
-from shutil import copyfile
+from shutil import copyfile,move
 
 # this allows GDAL to throw Python Exceptions
 gdal.UseExceptions()
@@ -108,20 +108,20 @@ def initDirs(dirBase,readme_template,
     bname = os.path.basename(dirBase)
     new_template = 'ingest_'+str(bname)+'.org'
     new_readme = os.path.join(dirBase,new_template)
-    copyfile(readme_template,new_readme)
+    move(readme_template,new_readme)
 
     #copy over a template of the ingest script
     bname = os.path.basename(dirBase)
     new_py_template = 'ingest_'+str(bname)+'.py'
     newBase    = os.path.join(dirBase,'scripts')
     new_ingest = os.path.join(newBase,new_py_template)
-    copyfile(ingest_template,new_ingest)
+    move(ingest_template,new_ingest)
 
     #copy over a template of the PDAL pipeline
     bname = os.path.basename(pipeline_template)
     newBase    = os.path.join(dirBase,'scripts')
     new_pipe   = os.path.join(newBase,bname)
-    copyfile(pipeline_template,new_pipe)
+    move(pipeline_template,new_pipe)
 #--------------------------------------------------
 
    

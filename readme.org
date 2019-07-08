@@ -35,12 +35,14 @@ Coordinate Reference System (CRS) info, las versions, etc.  It also
 checks for uniformity of values amoung all the files.  
 
 * How to run the Ingest Software
--  Create a working directory and cd into it
--  Clone this repo:  git clone https://www.unavco.org/gitlab/beckley/otdataingest.git
+-  Clone this repo:  git clone
+   https://www.unavco.org/gitlab/beckley/otdataingest.git
+-  Rename cloned directory to OT shortname 
+-  cd into newly renamed directory
 -  run the main level code in python3, and specify your working
    directory as the first argument:
 
-   python3 ~/ot/dev/ot_utils.py $PWD
+   python3 ot_utils.py $PWD
 
    This will set up the directory structure with all the necessary
    template files.
