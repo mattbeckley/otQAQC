@@ -1,4 +1,4 @@
-#+TITLE: Development of OT Data Ingest Utility Tools
+#+TITLE: OT Data Ingest Utility Tools
 #+OPTIONS: ^:nil
 #+DATE: <2019-02-28 Thu>
 
@@ -27,24 +27,20 @@
 #        |Meteosat-9   |Channels|3h|
 # ------------------------------------------------------------------------
 
+* Summary
+-  This repo consists of python scripts and templates to better automate
+and standardize the first-level QA/QC of data to be ingested into
+OpenTopography.  The scripts will check the lidar files for missing
+Coordinate Reference System (CRS) info, las versions, etc.  It also
+checks for uniformity of values amoung all the files.  
 
+* How to run the Ingest Software
+-  Create a working directory and cd into it
+-  Clone this repo:  git clone https://www.unavco.org/gitlab/beckley/otdataingest.git
+-  run the main level code in python3, and specify your working
+   directory as the first argument:
 
-* Features to add
--  perhaps convert the bash script to python.  Easier to add keywords.
-Add keyword for verbose output on/off
+   python3 ~/ot/dev/ot_utils.py $PWD
 
-
-* UT16 Supplement for testing
-
-** Boundary Creation
-*** Timing of LAS boundary vs PDAL boundary
-- 04_FFSL_LGR: PDAL Boundary Creation took: 22:22.897531
-- 04_FFSL_LGR: LAS Boundary Creation took:  16:32.263338
-- 04_FFSL_UCR: PDAL Boundary Creation took: 30:39.896994
-- 04_FFSL_UCR: LAS Boundary Creation took:  22:21.553627
-
-*** Differences in Area Calculations
-- 04_FFSL_LGR: PDAL-Area: 44.1750 km^2
-- 04_FFSL_LGR: LAS-Area:  43.8071 km^2
-- 04_FFSL_UCR: PDAL-Area: 68.6284 km^2
-- 04_FFSL_UCR: LAS-Area:  69.1638 km^2
+   This will set up the directory structure with all the necessary
+   template files.

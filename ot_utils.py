@@ -1536,9 +1536,9 @@ if __name__ == "__main__":
         sys.exit()
     else:
         dirBase = sys.argv[1]
-        template = '/Users/matt/ot/dev/ingest_template.org'
-        ingest_template   = '/Users/matt/ot/dev/ingest_template.py'
-        pipeline_template = '/Users/matt/ot/dev/pipeline.json'
+        template = os.path.join(dirBase,'ingest_template.org')
+        ingest_template   = os.path.join(dirBase,'ingest_template.py')
+        pipeline_template = os.path.join(dirBase,'pipeline.json')
 
     #This will copy all the templates and set up the directory structure.
     initDirs(dirBase,template,ingest_template=ingest_template,
