@@ -2,7 +2,6 @@
 from __future__ import print_function
 
 import sys,os,ipdb,logging
-sys.path.append('/Users/matt/ot/dev')
 
 from datetime import datetime
 import ot_utils as ot
@@ -16,13 +15,13 @@ import ElapsedTime as et
 #inputs:
 #----------------------------------------------------------------------
 shortname    = 'NZ18_Marlbo'
-ingestBase   = '/Users/matt/ot/DataIngest/'+shortname
+ingestBase   = os.getcwd()
 dataBase     = '/volumes/OT6TB/NZ18_Marlbo/'
 las_dir      = '/volumes/OT6TB/NZ18_Marlbo/LAZ'
-output_dir   = '/Users/matt/ot/DataIngest/'+shortname+'/logs'
-logfile      = ingestBase+'/logs/'+shortname+'_PDALInfoLog.txt'
-ingestLog    = ingestBase+'/logs/'+shortname+'_ingestLog.txt'
-bounds_base  = '/Users/matt/ot/DataIngest/'+shortname+'/bounds'
+output_dir   = os.path.join(ingestBase,shortname,'logs')
+logfile      = os.path.join(ingestBase,'logs',shortname+'_PDALInfoLog.txt')
+ingestLog    = os.path.join(ingestBase,'logs',shortname+'_ingestLog.txt'
+bounds_base  = os.path.join(ingestBase,shortname,'bounds')
 bounds_PDAL          = os.path.join(bounds_base,'Boundary_PDAL.shp')
 bounds_PDALmerge     = os.path.join(bounds_base,'Boundary_PDALMerged.shp')
 bounds_PDALmergeArea = os.path.join(bounds_base,'Boundary_PDALMergedwArea.shp')
@@ -221,7 +220,7 @@ print("Convert LAS-derived boundary to KML")
 ot.shape2KML(bounds_LTArea,bounds_LTKML)
 
 print("LAS Boundary Creation took:\n")
-et.ElapsedTime(start_LAS,end_LAS)
+ot.ElapsedTime(start_LAS,end_LAS)
 #----------------------------------------------------------------------
 """
 

@@ -69,8 +69,8 @@ def LogHeader(log,las_dir):
 
 #--------------------------------------------------
 def initDirs(dirBase,readme_template,
-             ingest_template='/Users/matt/ot/dev/ingest_template.py',
-             pipeline_template='/Users/matt/ot/dev/pipeline.json',):
+             ingest_template='ingest_template.py',
+             pipeline_template='pipeline.json'):
 
     #routine to set up a standard set of directories that I will use for
     #every project
@@ -103,25 +103,31 @@ def initDirs(dirBase,readme_template,
         dirval = os.path.join(dirBase,dval)
         os.makedirs(dirval)
 
-    #copy over a template of the readme so that I have
+    #move a template of the readme so that I have
     #consistent checks and notes
     bname = os.path.basename(dirBase)
     new_template = 'ingest_'+str(bname)+'.org'
     new_readme = os.path.join(dirBase,new_template)
     move(readme_template,new_readme)
 
-    #copy over a template of the ingest script
+    #move over a template of the ingest script
     bname = os.path.basename(dirBase)
     new_py_template = 'ingest_'+str(bname)+'.py'
     newBase    = os.path.join(dirBase,'scripts')
     new_ingest = os.path.join(newBase,new_py_template)
     move(ingest_template,new_ingest)
 
-    #copy over a template of the PDAL pipeline
+    #move over a template of the PDAL pipeline
     bname = os.path.basename(pipeline_template)
     newBase    = os.path.join(dirBase,'scripts')
     new_pipe   = os.path.join(newBase,bname)
     move(pipeline_template,new_pipe)
+
+    #move main routine, ot_utils.py to scripts
+    newBase  = os.path.join(dirBase,'scripts')
+    newUtils = os.path.join(newBase,'ot_utils.py')
+    move('ot_utils.py',newUtils)
+
 #--------------------------------------------------
 
    
