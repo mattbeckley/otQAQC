@@ -5,7 +5,6 @@ import sys,os,ipdb,logging
 
 from datetime import datetime
 import ot_utils as ot
-import ElapsedTime as et   
 
 """Name: 
    Description: QA/QC for data ingest of 
@@ -14,8 +13,9 @@ import ElapsedTime as et
 
 #inputs:
 #----------------------------------------------------------------------
-#Best to namne working directory as an OT shortname
-ingestBase   = os.getcwd()
+#Best to name working directory as an OT shortname.  Assumes you are
+#running this from the scripts directory..
+ingestBase   = os.path.dirname(os.getcwd())
 shortname    = os.path.basename(ingestBase)
 dataBase     = '/volumes/OT6TB/NZ18_Marlbo/'
 las_dir      = '/volumes/OT6TB/NZ18_Marlbo/LAZ'
