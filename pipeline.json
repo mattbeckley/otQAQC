@@ -1,0 +1,12 @@
+{
+    "pipeline": [
+        {
+            "type" : "readers.las"
+	},
+        {
+            "type" : "writers.las",
+            "a_srs": "EPSG:6342+5703"
+	}
+
+    ]
+}

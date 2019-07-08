@@ -1,0 +1,85 @@
+#+TITLE: Notes on Ingest of X
+#+OPTIONS: ^:nil
+
+* Org Mode Notes: 
+# ------------------------------------------------------------------------
+#  1.  go to Org -> HyperLinks -> Literal Links to show full paths so that I
+#  can do a search and replace
+#  2.  C-U C-U TAB to collapse all
+#  3.  C-U C-U C-U TAB to reveal all
+#  4.  To indent and fram a section of text put #+BEGIN_EXAMPLE at the
+#      beginning and #+END_EXAMPLE at the end of the section of text.
+#  5.  C-c C-c toggles check box
+#  6.  C-c C-l lets you put in links, or rename links
+#  7.  * Title
+#  8.  ** SubTitle1
+#  9.  *** SubTitle2
+#  10.  * Check List example
+#         - [ ] item1
+#         - [ ] item2
+#  11.  [[path of link][link name]  add the closing "]" to hide the path
+#  12.  To indent and frame a section of text put #+BEGIN_EXAMPLE at the
+#       beginning and #+END_EXAMPLE at the end of the section of text.
+#  13.  Table example:
+#        |Spacecraft   |Type   |time interval|
+#        |-------------+-------+----------|
+#        |Meteosat-9   |Channels|3h|
+# ------------------------------------------------------------------------
+
+* Tasks
+- [ ] PDAL logs created
+- [ ] LAZ files exist?
+- [ ] QA/QC on CRS and version of LAZ files - is it uniform?
+- [ ] plot georeferenced LAZ to verify that the CRS in metadata is
+      actually what the data is in (i.e. don't trust metadata?)
+- [ ] Boundary created
+- [ ] Area of boundary verified?
+- [ ] Header values match input (i.e. nothing was accidentally altered)
+- [ ] File counts match (for both rasters and pc)
+- [ ] Rasters in tiff format?
+- [ ] Rasters contain CRS info?
+- [ ] Rasters all in same CRS?
+- [ ] Rasters in same data type 
+- [ ] Is DSM > DEM?
+- [ ] Can VRT be built?
+- [ ] Does Raster boundary match lidar boundary?  Are there gaps
+- [ ] Put Metadata into PDF format if necessary.
+- [ ] Create registration page on xx/xx/xxxx
+- [ ] Add logo to registration
+- [ ] Uploaded LAZ, and rasters with rsync to beta on xx/xx/xxxx
+- [ ] When data is made public, notify Minh to turn on "Bulk Download"
+      option.
+
+*  Summary
+**  Original Check Before ingest
+-  Title:  
+-  PI 
+-  CRS according to metadata:
+   -  HCRS/VCRS: 
+   -  Projection: 
+   -  Original LAS/LAZ file count:  
+   -  Original files are in la? 1.x 
+
+* Bounds
+
+**  Area
+-   km^2.  My calcs matched QGIS.  Metadata reports 
+
+*  Metadata
+
+*  CRS checks
+-  all files are in EPSG: and version 1.x
+
+* Rasters
+* Beta Testing
+-  [ ] check all links
+-  [ ] download and check boundary kml
+-  [ ] check DOI
+-  [ ] download and check metadata
+-  [ ] Check LAS Validation report
+-  [ ] Check Citation
+-  [ ] Check that las and laz contain proper CRS info
+-  [ ] Check that OT rasters contain CRS and plot in a GIS
+
+
+* Prod testing
