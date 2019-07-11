@@ -17,7 +17,6 @@ import ot_utils as ot
 #running this from the scripts directory..
 ingestBase   = os.path.dirname(os.getcwd())
 shortname    = os.path.basename(ingestBase)
-dataBase     = '/volumes/OT6TB/NZ18_Marlbo/'
 las_dir      = '/volumes/OT6TB/NZ18_Marlbo/LAZ'
 output_dir   = os.path.join(ingestBase,'logs')
 logfile      = shortname+'_PDALInfoLog.txt'
