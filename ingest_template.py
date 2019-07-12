@@ -36,7 +36,7 @@ config1['LAZDir_out']   = '/volumes/OT6TB/WALL_TEST/LAZ'
 config1['pipeline']     = os.path.join(scripts_dir,'pipeline.json')
 
 #Run Module to Convert LAS2LAS...
-ot.RunQAQC(config1)
+#ot.RunQAQC(config1)
 #----------------------------------------------------------------------
 
 
@@ -77,7 +77,7 @@ config2['bounds_LTArea'] = os.path.join(bounds_base,'LTBoundswArea_Jul12.shp')
 config2['bounds_LTKML'] = os.path.join(bounds_base,'LTBoundswArea_Jul12.kml')
 
 #Run Module to Ingest LAZ, Create Boundaries
-ot.RunQAQC(config2)
+#ot.RunQAQC(config2)
 #----------------------------------------------------------------------
 
 #Config file for Checking Original Rasters for Metadata
@@ -93,7 +93,7 @@ config3['getFilesWild'] = '.*\.flt$'
 config3['recursive'] = 1
 
 #Run module to convert rasters to tiffs
-ot.RunQAQC(config3)
+#ot.RunQAQC(config3)
 #----------------------------------------------------------------------
 
 
@@ -112,7 +112,7 @@ config4['Translate2Tiff'] = 1
 config4['RasOutDir'] = ''
 
 #Run module to convert rasters to tiffs
-ot.RunQAQC(config4)
+#ot.RunQAQC(config4)
 #----------------------------------------------------------------------
 
 
@@ -125,12 +125,12 @@ config5['log_dir'] = log_dir
 config5['ingestLog'] = os.path.join(log_dir,shortname+'ReProjectRasters_QAQCLog.txt')
 config5['getFilesDir'] =  '/volumes/OT6TB/WALL_TEST/rasters'
 config5['getFilesWild'] = '.*\.tif$'
-config4['recursive'] = 1
+config5['recursive'] = 1
 config5['Warp2Tiff'] = 1
 config5['ras_xBlock'] = 256
 config5['ras_yBlock'] = 256
 config5['warp_t_srs'] = 6339
-ot.RunQAQC(config5)
+#ot.RunQAQC(config5)
 #----------------------------------------------------------------------
 
 
@@ -143,7 +143,8 @@ config6['CheckRasMeta'] = 1
 config6['log_dir'] = log_dir
 config6['ingestLog'] = os.path.join(log_dir,shortname+'CheckRasterMetaFinal_QAQCLog.txt')
 config6['getFilesDir'] =  '/volumes/OT6TB/WALL_TEST/rasters'
-config6['getFilesWild'] = '.*\.tif$'
+config6['getFilesWild'] = '.*\_EPSG6339.tif$'
+config6['recursive'] = 1
 
 #Run module to convert rasters to tiffs
 ot.RunQAQC(config6)

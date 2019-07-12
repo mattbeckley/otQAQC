@@ -573,10 +573,11 @@ def Warp2Tiff(files,log,t_srs,outdir='',xblock=128,yblock=128,
         #get basename
         outbase = os.path.basename(infile)
 
-        #strip out suffix and add tiff suffix.
-        outfile = outbase.split(".")[0]+".tif" 
         
         if recursive == 1:
+            #with recursive, you cannot overwrite input file, so need to
+            #output a new file with EPSG as suffix
+            outfile = outbase.split(".")[0]+"_EPSG"+str(t_srs)+".tif" 
             outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
         elif recursive == 1 and len(outdir) > 1:
@@ -590,6 +591,8 @@ def Warp2Tiff(files,log,t_srs,outdir='',xblock=128,yblock=128,
                    directory as input directory.')
             ipdb.set_trace()            
         else:
+            #strip out suffix and add tiff suffix.
+            outfile = outbase.split(".")[0]+".tif"             
             outfile = os.path.join(outdir,outfile)
         
         errorfile = os.path.join(outdir,'Transform2Tiff_errors.txt')
@@ -1618,7 +1621,23 @@ def RemoveFields(file,fields2delete=[],OnlyKeep=[]):
 #-----------------------------------------------------------------
 
 def RunQAQC(config):
+    """
+    Description:  This is the module that reads in the config file and
+    runs the modules to do the actual QAQC.  Users can set which modules
+    they want to run, and the parameters to use in their config file.
+    It's probably easiest to set up multiple config files and run
+    multiple times to do specific tasks.
 
+    Date Created: Jul 12 2019
+    Input(s): Config file in form of dictionary.  Refer to module,
+    initializeNullConfig in this file to see the list of parameters to
+    set.  
+
+    Update(s):
+    Notes:
+
+    """
+    
     ingest_start_time = datetime.now()
     
     #For now, always create std out and file logs...
@@ -1820,8 +1839,6 @@ def RunQAQC(config):
         log.info('------------------------------------------------------\n')        
     #----------------------------------------------------------------------    
 
-
-
     #Create Boundary via PDAL
     #----------------------------------------------------------------------
     if config['CreatePDALBoundary']:
@@ -1897,6 +1914,7 @@ def RunQAQC(config):
         log.info('--------------------------------')    
         log.info('Checking for missing CRS...')
         if any(CRStest):
+            print("FAIL: Some of the rasters are missing CRS info")            
             log.info("FAIL: Some of the rasters are missing CRS info")
 
             #get data frame of filenames that are missing CRS info.
@@ -1922,6 +1940,7 @@ def RunQAQC(config):
 
         unique_WKT = set(ras_meta.ActualCRS)
         if len(unique_WKT) > 1:
+            print('FAIL: More than 1 WKT format for the CRS')            
             log.info('FAIL: More than 1 WKT format for the CRS')
             log.info('There are '+str(len(unique_WKT))+'different CRS values')
             log.info('Dataset contains the following CRS WKT values:')
@@ -1943,6 +1962,7 @@ def RunQAQC(config):
 
         colortype = set(ras_meta.ColorType)
         if len(colortype) > 1:
+            print('FAIL: More than 1 Color Type for the rasters')            
             log.info('FAIL: More than 1 Color Type for the rasters')
             log.info('There are '+str(len(colortype))+'different color types')
             log.info('Dataset contains the following color type values:')
@@ -1963,6 +1983,7 @@ def RunQAQC(config):
 
         datatype = set(ras_meta.DataType)
         if len(datatype) > 1:
+            print('FAIL: More than 1 Data Type for the rasters')            
             log.info('FAIL: More than 1 Data Type for the rasters')
             log.info('There are '+str(len(datatype))+'different data types')
             log.info('Dataset contains the following data type values:')
@@ -1987,6 +2008,7 @@ def RunQAQC(config):
                  
         pix_res = set(pix)
         if len(pix_res) > 1:
+            print('FAIL: More than 1 pixel size for the rasters')            
             log.info('FAIL: More than 1 pixel size for the rasters')
             log.info('There are '+str(len(pix_res))+'different pixel sizes')
             log.info('Dataset contains the following pixel sizes:')
