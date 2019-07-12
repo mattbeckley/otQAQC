@@ -40,7 +40,7 @@ def initializeNullConfig():
               'getFilesWild':'',
               'getFilesDir': '',
               'recursive':0,
-              'laz_dir':'',
+              'LAZDir_out':'',
               'pipeline': '',
               'CreatePDALInfo':0,
               'PDALInfoFile':'',
@@ -67,6 +67,7 @@ def initializeNullConfig():
               'concavity':0,
               'bounds_LTArea':'',
               'bounds_LTKML':'',
+              'CheckRasMeta':0,
               'Translate2Tiff':0,
               'RasOutDir':'',
               'Warp2Tiff':0,
@@ -276,8 +277,6 @@ def absoluteFilePaths(directory):
            yield os.path.abspath(os.path.join(dirpath, f))
 #----------------------------------------------------------------------
 
-           
-    
 
 #----------------------------------------------------------------------
 def FileOverWrite(infile,ForceOverwrite=0):
@@ -342,8 +341,8 @@ def FileOverWrite(infile,ForceOverwrite=0):
                     f2remove = [item for a in suffs for item in glob.glob(infile[:-3]+"*"+a)]
 
                 else:
-                    f2remove = glob.glob(infile[:-3]+"*")
-                    #f2remove = [infile]
+                    #f2remove = glob.glob(infile[:-3]+"*")
+                    f2remove = [infile]
                 for f in f2remove:
                     print( "Removing: "+f)
                     os.remove(f)
@@ -383,7 +382,7 @@ def CheckShape(infile):
     return fcheck
 #----------------------------------------------------------------------
 
-def Translate2Tiff(files,outdir="",xblock=128,yblock=128,
+def Translate2Tiff(files,log,outdir="",xblock=128,yblock=128,
                    recursive=0,progress=0):
 
     """
@@ -431,7 +430,10 @@ def Translate2Tiff(files,outdir="",xblock=128,yblock=128,
     that would require me feeding the full path of the error file, and I
     don't know if that is really necessary right now.
     """
-    
+
+    log.info('Convert Raster to TIFF Format...')        
+    log.info('------------------------------------------------------')                
+
     #check that output directory exists...
     if recursive == 0:
         dirCheck = CheckDir(outdir)    
@@ -467,6 +469,7 @@ def Translate2Tiff(files,outdir="",xblock=128,yblock=128,
         
         errorfile = os.path.join(outdir,'Translate2Tiff_errors.txt')
 
+        errors = []
         if outfile:
             #need double quotes for paths with spaces!
             cmd = ['gdal_translate -of GTIFF -co \"COMPRESS=LZW\"'
@@ -484,16 +487,25 @@ def Translate2Tiff(files,outdir="",xblock=128,yblock=128,
                 print("\nCHECK ERROR LOG:\n"+errorfile+"\n when completed")
                 cmd2 = ['echo "error with file:" \"'+infile+'\" >> \"'+errorfile+'\"']
                 p2 = subprocess.run(cmd2,shell=True,stderr=subprocess.PIPE)
-
+                errors.append(1)
+                
         if progress:
             bar.next()
-
+    
     if progress:
         bar.finish()
+
+    if any(errors):
+        log.info("FAIL: Problem Converting Raster(s) to TIFF(s)")
+        log.info("CHECK ERROR LOG:\n"+errorfile+"\n")
+    else:
+        log.info("PASS: Converted Raster(s) to TIFF(s)")
+    log.info('------------------------------------------------------\n')
+    
 #----------------------------------------------------------------------
     
 #----------------------------------------------------------------------
-def Warp2Tiff(files,t_srs,outdir="TIFFs",xblock=128,yblock=128,
+def Warp2Tiff(files,log,t_srs,outdir='',xblock=128,yblock=128,
               recursive=0,progress=0):
     """
     Description:  This module will "transform" a tif using
@@ -544,6 +556,9 @@ def Warp2Tiff(files,t_srs,outdir="TIFFs",xblock=128,yblock=128,
     don't know if that is really necessary right now.
     """
 
+    log.info('Reprojecting TIFFs...')        
+    log.info('------------------------------------------------------')            
+
     #check that output directory exists...
     if recursive == 0:
         dirCheck = CheckDir(outdir)    
@@ -579,6 +594,7 @@ def Warp2Tiff(files,t_srs,outdir="TIFFs",xblock=128,yblock=128,
         
         errorfile = os.path.join(outdir,'Transform2Tiff_errors.txt')
 
+        errors = []
         if outfile:
             #need double quotes for paths with spaces!
             cmd = ['gdalwarp -co \"COMPRESS=LZW\"'
@@ -587,8 +603,6 @@ def Warp2Tiff(files,t_srs,outdir="TIFFs",xblock=128,yblock=128,
                    +' -t_srs \"EPSG:'+str(t_srs)+'\"'+' \"'+infile+'\"'
                    +' '+'\"'+outfile+'\" 2>> \"'+errorfile+'\"']
 
-            ipdb.set_trace()
-            
             #needed the shell=True for this to work
             p = subprocess.run(cmd,shell=True,stderr=subprocess.PIPE)
 
@@ -598,12 +612,21 @@ def Warp2Tiff(files,t_srs,outdir="TIFFs",xblock=128,yblock=128,
                 print("\nCHECK ERROR LOG:\n"+errorfile+"\n when completed")
                 cmd2 = ['echo "error with file:" \"'+infile+'\" >> \"'+errorfile+'\"']
                 p2 = subprocess.run(cmd2,shell=True,stderr=subprocess.PIPE)
-
+                errors.append(1)
+                 
         if progress:
             bar.next()
 
     if progress:
         bar.finish()
+
+    if any(errors):
+        log.info("FAIL: Problem Projecting Raster(s)")
+        log.info("CHECK ERROR LOG:\n"+errorfile+"\n")
+    else:
+        log.info("PASS: Projected Raster(s) to TIFF(s)")
+        
+    log.info('------------------------------------------------------\n')
 #----------------------------------------------------------------------
     
 #----------------------------------------------------------------------
@@ -1594,7 +1617,7 @@ def RemoveFields(file,fields2delete=[],OnlyKeep=[]):
 #End of RemoveFields
 #-----------------------------------------------------------------
 
-def RunIngest(config):
+def RunQAQC(config):
 
     ingest_start_time = datetime.now()
     
@@ -1628,7 +1651,7 @@ def RunIngest(config):
         log.info('Converting files from LAS to LAZ...')
         log.info('LAZ files will be in:\n')
         log.info(config['getFilesDir'])
-        Convert2LAZ(infiles,config['pipeline'],outdir=config['laz_dir'],
+        Convert2LAZ(infiles,config['pipeline'],outdir=config['LAZDir_out'],
                     recursive=config['recursive'],progress=1)
         log.info('------------------------------------------------------\n')
 
@@ -1858,45 +1881,161 @@ def RunIngest(config):
         log.info('------------------------------------------------------\n')        
     #----------------------------------------------------------------------
 
+    #Overall check of raster metadata...
+    #----------------------------------------------------------------------
+    if config['CheckRasMeta']:
+        stdout.info('Checking Raster Metadata...')
+        log.info('Checking Raster Metadata...')                 
+        log.info('------------------------------------------------------')
+
+        ras_meta = CheckRasterInfo(infiles)
+
+        #--------------------------------------------------
+        CRStest = ras_meta.MissingCRS.isin([1])
+
+        stdout.info('Checking for missing CRS...')
+        log.info('--------------------------------')    
+        log.info('Checking for missing CRS...')
+        if any(CRStest):
+            log.info("FAIL: Some of the rasters are missing CRS info")
+
+            #get data frame of filenames that are missing CRS info.
+            fname = ras_meta[ras_meta.MissingCRS == 1]['filename']
+            fname_L = fname.to_list()
+
+            log.info("The following rasters are missing CRS info:\n")
+            for f in fname_L:
+                 log.info(f)
+
+            ipdb.set_trace()
+                 
+        else:
+            stdout.info("PASS:  All rasters have a CRS")            
+            log.info("PASS:  All rasters have a CRS")
+        log.info('--------------------------------\n')    
+        #--------------------------------------------------
+
+        #--------------------------------------------------        
+        stdout.info('Checking if CRS is uniform for all rasters...')
+        log.info('------------------------------------------------------')    
+        log.info('Checking if CRS is uniform for all rasters...')
+
+        unique_WKT = set(ras_meta.ActualCRS)
+        if len(unique_WKT) > 1:
+            log.info('FAIL: More than 1 WKT format for the CRS')
+            log.info('There are '+str(len(unique_WKT))+'different CRS values')
+            log.info('Dataset contains the following CRS WKT values:')
+            for val in unique_WKT:
+                log.info(str(val))
+
+            ipdb.set_trace()
+        else:
+            stdout.info("PASS: All files in same CRS: \n"+str(unique_WKT))            
+            log.info("PASS: All files in same CRS: \n"+str(unique_WKT))
+        log.info('------------------------------------------------------\n')
+        #--------------------------------------------------
+
+                 
+        #--------------------------------------------------        
+        stdout.info('Checking if Color Type is uniform for all rasters...')
+        log.info('------------------------------------------------------')    
+        log.info('Checking if Color Type is uniform for all rasters...')
+
+        colortype = set(ras_meta.ColorType)
+        if len(colortype) > 1:
+            log.info('FAIL: More than 1 Color Type for the rasters')
+            log.info('There are '+str(len(colortype))+'different color types')
+            log.info('Dataset contains the following color type values:')
+            for val in colortype:
+                log.info(str(val))
+
+            ipdb.set_trace()
+        else:
+            stdout.info("PASS: All files have same color type: "+str(colortype))
+            log.info("PASS: All files have same color type: "+str(colortype))
+        log.info('------------------------------------------------------\n')
+        #--------------------------------------------------
+
+        #--------------------------------------------------        
+        stdout.info('Checking if Data Type is uniform for all rasters...')
+        log.info('------------------------------------------------------')    
+        log.info('Checking if Data Type is uniform for all rasters...')
+
+        datatype = set(ras_meta.DataType)
+        if len(datatype) > 1:
+            log.info('FAIL: More than 1 Data Type for the rasters')
+            log.info('There are '+str(len(datatype))+'different data types')
+            log.info('Dataset contains the following data type values:')
+            for val in datatype:
+                log.info(str(val))
+
+            ipdb.set_trace()
+        else:
+            stdout.info("PASS: All files have same data type: "+str(datatype))
+            log.info("PASS: All files have same data type: "+str(datatype))
+        log.info('------------------------------------------------------\n')
+        #--------------------------------------------------
+                 
+        #--------------------------------------------------        
+        stdout.info('Checking if Pixel Size is uniform for all rasters...')
+        log.info('------------------------------------------------------')    
+        log.info('Checking if Pixel Size is uniform for all rasters...')
+
+        #check both pixel res in NS and EW directions.  These should
+        #always be the same, but GDAL breaks it up like this....
+        pix = pd.concat([ras_meta.PixelRes_EW,ras_meta.PixelRes_NS])
+                 
+        pix_res = set(pix)
+        if len(pix_res) > 1:
+            log.info('FAIL: More than 1 pixel size for the rasters')
+            log.info('There are '+str(len(pix_res))+'different pixel sizes')
+            log.info('Dataset contains the following pixel sizes:')
+            for val in pix_res:
+                log.info(str(val))
+
+            ipdb.set_trace()
+        else:
+            stdout.info("PASS: All files have same pixel size: "+str(pix_res))
+            log.info("PASS: All files have same pixel size: "+str(pix_res))
+        log.info('------------------------------------------------------\n')
+        #--------------------------------------------------
+
+
+        stdout.info("PASS: Checked Raster Metadata")
+        log.info("PASS: Checked Raster Metadata")                         
+        log.info('------------------------------------------------------\n')        
+    #----------------------------------------------------------------------                 
+                 
     #----------------------------------------------------------------------
     if config['Translate2Tiff']:
         stdout.info('Convert Raster to TIFF Format...')
-        log.info('Convert Raster to TIFF Format...')        
-        log.info('------------------------------------------------------')            
-        Translate2Tiff(infiles,outdir=config['RasOutDir'],
+
+        Translate2Tiff(infiles,log,outdir=config['RasOutDir'],
                        xblock=config['ras_xBlock'],
                        yblock=config['ras_yBlock'],
                        recursive=config['recursive'],
                        progress=0)
         stdout.info("PASS: Converted Raster(s) to TIFF(s)")
-        log.info("PASS: Converted Raster(s) to TIFF(s)")                
-        log.info('------------------------------------------------------\n')        
     #----------------------------------------------------------------------        
 
     #----------------------------------------------------------------------
     if config['Warp2Tiff']:
         stdout.info('Reprojecting TIFFs...')
-        log.info('Reprojecting TIFFs...')        
-        log.info('------------------------------------------------------')            
-        Warp2Tiff(infiles,config['warp_t_srs'],
-                  outdir="TIFFs",xblock=config['ras_xBlock'],
+
+        Warp2Tiff(infiles,log,config['warp_t_srs'],
+                  outdir=config['RasOutDir'],xblock=config['ras_xBlock'],
                   yblock=config['ras_yBlock'],
                   recursive=config['recursive'],progress=0)
 
         stdout.info("PASS: Reprojected TIFFs")        
-        log.info("PASS: Reprojected TIFFs")        
-        log.info('------------------------------------------------------\n')        
     #----------------------------------------------------------------------
-        
 
+        
     ingest_end_time = datetime.now()
-    log.info('Total Ingest Time:\n')
+    log.info('Total Time:\n')
     log.info('{}\n'.format(ingest_end_time - ingest_start_time))
-    
-    stdout.info("Program finished successfully!")
     log.info("\nProgram finished successfully!")
     log.info('------------------------------------------------------\n')
-
     
     # remember to close the handlers. This will close the log.
     for handler in log.handlers.copy():
@@ -1910,9 +2049,11 @@ def RunIngest(config):
         stdout.removeHandler(handler)
         handler.flush()
         handler.close()
-
+        
     
-#End runIngest module
+    stdout.info("Program finished successfully!")
+    
+#End runQAQC module
 #-----------------------------------------------------------------    
     
 if __name__ == "__main__":

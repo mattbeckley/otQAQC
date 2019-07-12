@@ -1,13 +1,14 @@
-#+TITLE: OT Data Ingest Utility Tools
+#+TITLE: OT QA/QC Utility Tools
 
 *  Summary
 -  This repo consists of python scripts and templates to better automate
    and standardize the first-level QA/QC of data to be ingested into
    OpenTopography.  The scripts will check the lidar files for missing
    Coordinate Reference System (CRS) info, las versions, etc.  It also
-   checks for uniformity of values amoung all the files.  
+   checks for uniformity of values amoung all the files, as well as
+   creating boundaries of the data, and calculating area.
 
-*  How to run the Ingest Software
+*  How to run the QA/QC Software
 -  Clone this repo:  git clone
    https://www.unavco.org/gitlab/beckley/otdataingest.git
 -  Rename cloned directory to OT shortname 
@@ -26,6 +27,12 @@
 
 
 *  Configuration File Description
+-  To run the QA/QC code, you should initialize a configuration file to
+   nulls by doing:  config = ot.initializeNullConfig().  Then set
+   whatever parameters you want.  It's best to run multiple QA/QCs if
+   you have multiple steps to do (ex: convert to LAZ first, then run
+   Boundary creation)
+
 -  ingestBase.  This is generally your base working directory and will
    be taken automatically if you are running the scripts with the default
    directory structure.  In general, this will be something like:
@@ -67,26 +74,25 @@
 -  ingestLog.  Full path to ingest log.  Filename is usually in the form:
                shortname+'_ingestLog.txt'
 
--  winePath.  Path to LASTools executables.  Default is:
-              /Applications/LASTools/bin
-
 -  LAS2LAZ.  Set this to 1 if you want to convert LAS files to LAZ
    otherwise set to 0.
 
--  las_dir.  Directory where LAS files are located.
+-  getFilesWild.  Regular expression to find all the files. you want to
+   work on.  It's best to search by suffix: '.*\.laz$'
+
+-  getFilesDir.  Base directory from where file search will start.  If
+   recursive is set it will start to drill down from this directory.
 
 -  recursive.  Set this to 1 if the files to ingest are in a nested
    directory structure.  This is pretty rare.  Mostly all the las/laz
    files will be in single directory, so generally leave this set to 0.
 
+-  LAZDir_out.  Directory where LAZ files will be written when converted
+   from LAS.
+
 -  pipeline.  Full path to pipeline file.  This is a JSON file that will
    be used by PDAL to do either a conversion or translation.  If LAS2LAZ
    is set, then you must supply a pipeline.
-
--  laz_dir.  Directory where LAZ files are located for ingest.
-
--  getFilesWild.  Regular expression to find all the LAZ files.  It's best
-   to leave as default of: '.*\.laz$'
 
 -  CreatePDALInfo.  Set this to 1 if you want to loop through all the
    LAS/LAZ files and create a log of all the metadata.  This file is
@@ -94,6 +100,9 @@
 
 -  PDALInfoFile.  Name of the logfile containing all the PDAL metadata.
    Default is:  shortname+'_PDALInfoLog.txt'
+
+-  ReadPDALLog.  Set this to 1 if you want to read in the PDAL log into
+   an array for doing QAQC.  You will need this for most operations.
 
 -  CheckLAZCount.  Set this to 1 if you want to check the count of LAZ
    files.  This is a mildly useful check, and will report if there are
@@ -127,18 +136,13 @@
 -  PointTypeCheck.  Set this to 1 if you want to check that all the
    LAS/LAZ files have the same 'Point Type' value.
 
-
 -  GlobalEncodingCheck.  Set this to 1 if you want to check that all the
    LAS/LAZ files have the same 'Global Encoding' value.
-
 
 -  CreatePDALBoundary.  Set this to 1 if you want to create a boundary
    of the datasets using PDAL.  PDAL uses a different method than
    LASTools, and there are several steps involved.  It is a bit slower,
    and also seems a bit buggy.
-
--  PDALBound_InputDir.  Directory of the LAZ files that will be used to
-   create the boundary.
 
 -  bounds_PDAL.  Full path of shapefile that will be the initial
    boundary created from PDAL.  This file will usually be in segments, and
@@ -166,6 +170,9 @@
 -  CreateLASBoundary.  Set this to 1 if you want to create a boundary of
    the dataset using LASTools.
 
+-  winePath.  Path to LASTools executables.  Default is:
+              /Applications/LASTools/bin
+
 -  bounds_LT.  Full path to a shapefile that will contain the boundary
    created by LASTools.
 
@@ -183,3 +190,27 @@
 
 -  bounds_LTKML.  Full path to the KML version of the LASTools-derived
    boundary shapefile that contains the area in the attribute table.
+
+-  Translate2Tiff.  Set this to 1 if you want to convert raster files to
+   tiffs.  Note you set getFilesWild to get the files you want to
+   convert.  This just converts the file type, and does not do
+   reprojection.  
+
+-  RasOutDir.  Directory where you want to write out the newly created
+   raster files.  Note set this to '' if you want to use the recursive
+   method.  
+
+-  Warp2Tiff.  Set this to 1 if you want to reproject the tiff
+   files. Note you set getFilesWild to get the files you want to convert.
+   You can specify a single output directory or the recursive method.
+
+-  ras_xBlock.  This is the size of the tiles that gdal will tile at in
+   the X direction.  This is usually: 128, 256, or 512.  default is set
+   to 128.  
+
+-  ras_yBlock.  This is the size of the tiles that gdal will tile at in
+   the Y direction.  This is usually: 128, 256, or 512.  default is set
+   to 128.  
+
+-  warp_t_srs.  This is the EPSG code that you want the newly projected
+   tiff to be in.  Input must contain SRS info in the header.
