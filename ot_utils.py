@@ -31,6 +31,51 @@ gdal.UseExceptions()
 
 __author__      = "Matthew Beckley"
 
+#----------------------------------------------------------------------
+def initializeNullConfig():
+    #Config file for Converting LAS2LAS
+    config = {'log_dir':'',
+              'ingestLog':'',
+              'LAS2LAZ':0,
+              'getFilesWild':'',
+              'getFilesDir': '',
+              'recursive':0,
+              'laz_dir':'',
+              'pipeline': '',
+              'CreatePDALInfo':0,
+              'PDALInfoFile':'',
+              'ReadPDALLog':0,
+              'CheckLAZCount':0,
+              'MissingHCRS':0,
+              'MissingVCRS':0,
+              'HCRS_Uniform':0,
+              'VCRS_Uniform':0,
+              'VersionCheck':0,
+              'PointTypeCheck':0,
+              'GlobalEncodingCheck':0,
+              'CreatePDALBoundary':0,
+              'bounds_PDAL':'',
+              'BufferSize':0,
+              'epsg':0,
+              'bounds_PDALmerge':'',
+              'bounds_PDALmergeArea':'',
+              'bounds_PDALKML':'',
+              'CreateLASBoundary':0,
+              'winePath':'',
+              'bounds_LT':'',
+              'randFrac':0,
+              'concavity':0,
+              'bounds_LTArea':'',
+              'bounds_LTKML':'',
+              'Translate2Tiff':0,
+              'RasOutDir':'',
+              'Warp2Tiff':0,
+              'ras_xBlock':0,
+              'ras_yBlock':0,
+              'warp_t_srs':0}
+
+    return config
+#----------------------------------------------------------------------
 
 #----------------------------------------------------------------------
 def ElapsedTime(start_time,end_time):
@@ -58,12 +103,12 @@ def setup_logger(name, log_file,stdout=0, level=logging.INFO):
 #----------------------------------------------------------------------
 
 #----------------------------------------------------------------------
-def LogHeader(log,las_dir):
-    archived_date = str(datetime.utcnow())
+def LogHeader(log,indir):
+    archived_date = str(datetime.now())
     log.info('------------------------------------------------------')    
-    log.info('Ingest started on: '+archived_date)
-    log.info('\nIngesting files from directory:\n')
-    log.info(las_dir)
+    log.info('Program started on: '+archived_date)
+    log.info('\nWorking on files from directory:\n')
+    log.info(indir)
     log.info('------------------------------------------------------\n')
 #----------------------------------------------------------------------
 
@@ -193,7 +238,8 @@ def CreatePDALInfo(files,outdir,outfile,errors='errors.txt',progress=1):
             cmd4 = ['echo "," >> '+out_fpath]
             p4 = subprocess.run(cmd4,shell=True,stderr=subprocess.PIPE)
 
-        bar.next()
+        if progress:
+            bar.next()
 
     #remove final comma from file...
     cmd5 = ['sed -i \'\' -e \'$ d \' '+out_fpath]
@@ -203,7 +249,8 @@ def CreatePDALInfo(files,outdir,outfile,errors='errors.txt',progress=1):
     cmd6 = ['echo ] >> '+out_fpath]
     p6 = subprocess.run(cmd6,shell=True)
 
-    bar.finish()
+    if progress:    
+        bar.finish()
 #-----------------------------------------------------------------
 
 
@@ -267,8 +314,8 @@ def FileOverWrite(infile,ForceOverwrite=0):
                 f2remove = [item for a in suffs for item in glob.glob(infile[:-3]+"*"+a)]
 
             else:
-                f2remove = glob.glob(infile[:-3]+"*")
-                #f2remove = [infile]
+                #f2remove = glob.glob(infile[:-3]+"*")
+                f2remove = [infile]
                 
             for f in f2remove:
                 #if forcing, not printing anything to standard out.
@@ -336,8 +383,8 @@ def CheckShape(infile):
     return fcheck
 #----------------------------------------------------------------------
 
-def Translate2Tiff(files,outdir="TIFFs",xblock=128,yblock=128,
-                   recursive=0,progress=1):
+def Translate2Tiff(files,outdir="",xblock=128,yblock=128,
+                   recursive=0,progress=0):
 
     """
     Description:  This module will "translate" a tif using
@@ -405,6 +452,16 @@ def Translate2Tiff(files,outdir="TIFFs",xblock=128,yblock=128,
         if recursive == 1:
             outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
+        elif recursive == 1 and len(outdir) > 1:
+            print('Cannot set both recursive AND a output directory')
+            print('Recursive keyword will write output to same \
+                   directory as input directory.')
+            ipdb.set_trace()
+        elif recursive == 0 and len(outdir) == 0:
+            print('Must set either recursive OR a output directory')
+            print('Recursive keyword will write output to same \
+                   directory as input directory.')
+            ipdb.set_trace()            
         else:
             outfile = os.path.join(outdir,outfile)
         
@@ -428,14 +485,16 @@ def Translate2Tiff(files,outdir="TIFFs",xblock=128,yblock=128,
                 cmd2 = ['echo "error with file:" \"'+infile+'\" >> \"'+errorfile+'\"']
                 p2 = subprocess.run(cmd2,shell=True,stderr=subprocess.PIPE)
 
-        bar.next()
+        if progress:
+            bar.next()
 
-    bar.finish()
+    if progress:
+        bar.finish()
 #----------------------------------------------------------------------
     
 #----------------------------------------------------------------------
 def Warp2Tiff(files,t_srs,outdir="TIFFs",xblock=128,yblock=128,
-              recursive=0,progress=1):
+              recursive=0,progress=0):
     """
     Description:  This module will "transform" a tif using
     gdalwarp.  Use this module if you want to actually do a reprojection
@@ -505,6 +564,16 @@ def Warp2Tiff(files,t_srs,outdir="TIFFs",xblock=128,yblock=128,
         if recursive == 1:
             outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
+        elif recursive == 1 and len(outdir) > 1:
+            print('Cannot set both recursive AND a output directory')
+            print('Recursive keyword will write output to same \
+                   directory as input directory.')
+            ipdb.set_trace()
+        elif recursive == 0 and len(outdir) == 0:
+            print('Must set either recursive OR a output directory')
+            print('Recursive keyword will write output to same \
+                   directory as input directory.')
+            ipdb.set_trace()            
         else:
             outfile = os.path.join(outdir,outfile)
         
@@ -530,9 +599,11 @@ def Warp2Tiff(files,t_srs,outdir="TIFFs",xblock=128,yblock=128,
                 cmd2 = ['echo "error with file:" \"'+infile+'\" >> \"'+errorfile+'\"']
                 p2 = subprocess.run(cmd2,shell=True,stderr=subprocess.PIPE)
 
-        bar.next()
+        if progress:
+            bar.next()
 
-    bar.finish()
+    if progress:
+        bar.finish()
 #----------------------------------------------------------------------
     
 #----------------------------------------------------------------------
@@ -969,7 +1040,7 @@ def checkLASVersion(json):
 
 
 #----------------------------------------------------------------------    
-def Convert2LAZ(files,pipeline,outdir='LAZ',recursive=0,progress=1):
+def Convert2LAZ(files,pipeline,outdir='',recursive=0,progress=1):
     #reads in a pipline and executes it.  technically the pipeline could
     #be anything, but this one should just convert las to laz.
     #if recursive, write laz files to same directory as what las
@@ -1006,6 +1077,16 @@ def Convert2LAZ(files,pipeline,outdir='LAZ',recursive=0,progress=1):
         if recursive == 1:
             outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
+        elif recursive == 1 and len(outdir) > 1:
+            print('Cannot set both recursive AND a output directory')
+            print('Recursive keyword will write output to same \
+                   directory as input directory.')
+            ipdb.set_trace()
+        elif recursive == 0 and len(outdir) == 0:
+            print('Must set either recursive OR a output directory')
+            print('Recursive keyword will write output to same \
+                   directory as input directory.')
+            ipdb.set_trace()            
         else:
             outfile = os.path.join(outdir,outfile)
         
@@ -1031,9 +1112,11 @@ def Convert2LAZ(files,pipeline,outdir='LAZ',recursive=0,progress=1):
                 cmd2 = ['echo "error with file:" \"'+infile+'\" >> \"'+errorfile+'\"']
                 p2 = subprocess.run(cmd2,shell=True,stderr=subprocess.PIPE)
 
-        bar.next()
+        if progress:        
+            bar.next()
 
-    bar.finish()
+    if progress:
+        bar.finish()
 #----------------------------------------------------------------------        
 
 #----------------------------------------------------------------------    
@@ -1112,8 +1195,7 @@ def AddCRS2Header(indir,pipeline,wild=r'.*[LlAaSsZz]$',verbose=1,
 #----------------------------------------------------------------------        
 
 #----------------------------------------------------------------------
-def CreateBounds(indir,out_boundary,epsg,wild=r'.*[LlAaZz]$',
-                 recursive=0,edge_size=50):
+def CreateBounds(infiles,out_boundary,epsg,recursive=0,edge_size=50):
     #setting edge_size=10 gets a better approximation of the boundary.
     #Edge_size of 1 finds to many gaps.
     #Needed to escape asterisk to avoid getting weird errors....
@@ -1122,49 +1204,32 @@ def CreateBounds(indir,out_boundary,epsg,wild=r'.*[LlAaZz]$',
     #files.  the .* matches ANY previous characters, and the $ indicates
     #that the text needs to end in LAZ or laz or any combo.  Change the
     #Zz to Ss if want las files.
+
+    indir = os.getcwd()
+    CreateTempFile(infiles,indir)
     
-    #check that directory exists:
-    dirCheck = CheckDir(indir)    
-    if dirCheck is False:
-        DirWarning(indir)
+    cat_cmd = 'cat tmp.txt'
 
-    #get listing of files that match the reg expression and output a
-    #list.  ireg will ignore case
-    if recursive == 0:
-        find_cmd = 'find \"'+indir+'\" -iregex '+wild+' -type f -maxdepth 1 -print'
-    if recursive == 1:
-        find_cmd = 'find \"'+indir+'\" -iregex '+wild+' -type f -print'
-
-
-    p1 = subprocess.run(find_cmd,shell=True,stdout=PIPE)
-
-    #do some error checking...
-    if (len(p1.stdout) == 0) and (p1.returncode == 0):
-        print('No files found in '+indir+' with wildcard: '+wild)
-        ipdb.set_trace()
-    elif (p1.returncode == 1):
-        print('Error - Check if path exists:\n'+indir)
-        ipdb.set_trace()        
-    else:
-
-        if edge_size == 0:
-            cmd = [find_cmd+'|pdal tindex --tindex '+out_boundary
-                   +' --stdin'
-                   +' -f "ESRI Shapefile"'
-                   +' --t_srs \"EPSG:'+str(epsg)+'\"']
-        else:
-            cmd = [find_cmd+'|pdal tindex --tindex '+out_boundary
+    if edge_size == 0:
+        cmd = [cat_cmd+'|pdal tindex --tindex '+out_boundary
                +' --stdin'
                +' -f "ESRI Shapefile"'
-               +' --filters.hexbin.edge_size='+str(edge_size)
                +' --t_srs \"EPSG:'+str(epsg)+'\"']
+    else:
+        cmd = [cat_cmd+'|pdal tindex --tindex '+out_boundary
+           +' --stdin'
+           +' -f "ESRI Shapefile"'
+           +' --filters.hexbin.edge_size='+str(edge_size)
+           +' --t_srs \"EPSG:'+str(epsg)+'\"']
 
-        p = subprocess.run(cmd,shell=True,stderr=subprocess.PIPE)
-        if (p.returncode == 1):
-           print('Error Creating Boundary with PDAL..\n')
-           print(p)
-           ipdb.set_trace()           
+    p = subprocess.run(cmd,shell=True,stderr=subprocess.PIPE)
+    if (p.returncode == 1):
+       print('Error Creating Boundary with PDAL..\n')
+       print(p)
+       ipdb.set_trace()           
 
+    #remove the file tmp.txt that contains the list of files...
+    p2 = subprocess.run('rm -f tmp.txt',shell=True)
 #----------------------------------------------------------------------
 
 #----------------------------------------------------------------------
@@ -1529,6 +1594,326 @@ def RemoveFields(file,fields2delete=[],OnlyKeep=[]):
 #End of RemoveFields
 #-----------------------------------------------------------------
 
+def RunIngest(config):
+
+    ingest_start_time = datetime.now()
+    
+    #For now, always create std out and file logs...
+    #------------------------------------------------------------
+    #always start a new log?  Check if one exists, and if so
+    #delete it.
+
+    #if os.path.exists(config['ingestLog']):
+    #    os.remove(config['ingestLog'])
+
+    #open log
+    log    = setup_logger('Log1', config['ingestLog'])
+
+    #Write header to Log
+    LogHeader(log,config['getFilesDir'])
+
+    stdout = setup_logger('Log2', '', stdout=1) 
+    #------------------------------------------------------------
+
+    #This is the list of files that you will work on.  To do multiple
+    #operations, you will need to run RunIngest multiple times with
+    #different configs.
+    infiles = getFiles(config['getFilesDir'],wild=config['getFilesWild'],
+                       recursive=config['recursive'])
+    
+    
+    if config['LAS2LAZ']:
+        stdout.info('Converting files from LAS to LAZ...')
+        log.info('------------------------------------------------------')    
+        log.info('Converting files from LAS to LAZ...')
+        log.info('LAZ files will be in:\n')
+        log.info(config['getFilesDir'])
+        Convert2LAZ(infiles,config['pipeline'],outdir=config['laz_dir'],
+                    recursive=config['recursive'],progress=1)
+        log.info('------------------------------------------------------\n')
+
+    if config['CreatePDALInfo']:
+        #create PDAL Info output from all files
+        log.info('------------------------------------------------------')    
+        CreatePDALInfo(infiles,config['log_dir'],config['PDALInfoFile'])
+        stdout.info('PASS: Created PDAL info log...')
+        log.info('PASS: Created PDAL info log...')
+        log.info('------------------------------------------------------\n')
+        
+    if config['CheckLAZCount']:
+        fileCount = LAZCount(config['getFilesDir'])
+        stdout.info('Checking if LAZ count matches file count in directory...')
+        log.info('------------------------------------------------------')    
+        log.info('Checking if LAZ count matches file count in directory...')
+        if fileCount["TotalLAZCount"] != fileCount["TotalFileCount"]:
+            log.info('WARNING: LAZ count does not match Total File Count.')
+            log.info('Directory contains following filetypes:')
+            for f in fileCount['FileTypes']:
+                log.info(str(f))
+            log.info('\nCheck path:\n'+config['getFilesDir'])
+        else:
+            log.info('PASS: LAZ count matches Total File Count.')
+        log.info('------------------------------------------------------\n')    
+
+    if config['ReadPDALLog']:
+        #Get the json data of PDAL info
+        json = readJSONARRAY(config['log_dir'],config['PDALInfoFile'])
+
+    #Check if Horizontal or Vertical CRS is missing on any of the files...
+    #----------------------------------------------------------------------    
+    if config['MissingHCRS']:
+        CRS_check = CountCRS(json)
+        
+        htest = CRS_check.MissingHCRS.isin([1])
+
+        stdout.info('Checking for missing horizontal CRS...')
+        log.info('------------------------------------------------------')    
+        log.info('Checking for missing horizontal CRS...')
+        if any(htest):
+            log.info("FAIL: Some of the files are missing Horizontal CRS info")
+            ipdb.set_trace()
+        else:
+            stdout.info("PASS:  All files have a horizontal CRS")            
+            log.info("PASS:  All files have a horizontal CRS")
+        log.info('------------------------------------------------------\n')
+        
+    if config['MissingVCRS']:
+        CRS_check = CountCRS(json)
+        
+        vtest = CRS_check.MissingVCRS.isin([1])
+        stdout.info('Checking for missing vertical CRS...')
+        log.info('------------------------------------------------------')    
+        log.info('Checking for missing vertical CRS...')
+        
+        if any(vtest):
+            sdtout.info("WARNING: Some (or ALL) of the files are missing Vertical CRS info")
+            log.info("WARNING: Some (or ALL) of the files are missing Vertical CRS info")
+        else:
+            stdout.info("PASS:  All files have a vertical CRS")
+            log.info("PASS:  All files have a vertical CRS")
+
+        log.info('------------------------------------------------------\n')    
+    #----------------------------------------------------------------------
+
+    #check if CRS is uniform...
+    #----------------------------------------------------------------------
+    if config['HCRS_Uniform']:
+        stdout.info('Checking if horizontal CRS is uniform...')
+        log.info('------------------------------------------------------')    
+        log.info('Checking if horizontal CRS is uniform...')
+        HCRS_epsgs   = getHCRS_EPSG(json)          
+        unique_epsgs = set(HCRS_epsgs.HCRS_EPSG)
+        if len(unique_epsgs) > 1:
+            log.info('FAIL: More than 1 EPSG for the Horizontal CRS')
+            log.info('There are '+str(len(unique_epsgs))+'different horizontal CRS epsg values')
+            log.info('Dataset contains the following horizontal CRS epsg codes:')
+            for val in unique_epsgs:
+                log.info(str(val))
+
+            ipdb.set_trace()
+        else:
+            stdout.info("PASS: All files in same HCRS: "+str(unique_epsgs))            
+            log.info("PASS: All files in same HCRS: "+str(unique_epsgs))
+        log.info('------------------------------------------------------\n')
+
+    if config['VCRS_Uniform']:    
+        stdout.info('Checking if vertical CRS is uniform...')
+        log.info('------------------------------------------------------')            
+        log.info('Checking if vertical CRS is uniform...')
+        VCRS_epsgs    = getVCRS_EPSG(json)          
+        unique_Vepsgs = set(VCRS_epsgs.VCRS_EPSG)
+        if len(unique_Vepsgs) > 1:
+            log.info('FAIL: More than 1 EPSG for the Vertical CRS')
+            log.info('There are '+str(len(unique_Vepsgs))+'different vertical CRS epsg values')
+            log.info('Dataset contains the following vertical CRS epsg codes:')
+            for val in unique_Vepsgs:
+                log.info(str(val))
+
+            ipdb.set_trace()
+        else:
+            stdout.info("PASS: All files in same VCRS: "+str(unique_Vepsgs))            
+            log.info("PASS: All files in same VCRS: "+str(unique_Vepsgs))
+
+        log.info('------------------------------------------------------\n')    
+    #----------------------------------------------------------------------
+
+    #Make sure the files are all in the same LAS version...
+    #----------------------------------------------------------------------    
+    if config['VersionCheck']:
+        Version_check = checkLASVersion(json)
+        NumVersions = len(Version_check.Version.unique())
+        stdout.info('Checking the version of the las and if it is uniform...')
+        log.info('------------------------------------------------------')    
+        log.info('Checking the version of the las and if it is uniform...')
+        if NumVersions > 1:
+            log.info("FAIL: Files are in more than one LAS version")
+            ipdb.set_trace()
+        else:
+            stdout.info("PASS: All files are in version: "+str(Version_check.Version.unique()))
+            log.info("PASS: All files are in version: "+str(Version_check.Version.unique()))
+
+        log.info('------------------------------------------------------\n')    
+    #----------------------------------------------------------------------
+
+    #Check the point type of all files, and if they are uniform
+    #----------------------------------------------------------------------
+    if config['PointTypeCheck']:
+        stdout.info('Checking if Point Type is uniform...')
+        log.info('------------------------------------------------------')    
+        log.info('Checking if Point Type is uniform...')
+        pType        = getPointType(json)          
+        unique_pType = set(pType.PointType)
+        if len(unique_pType) > 1:
+            log.info('WARNING: More than 1 Point Types for the lidar files')
+            log.info('There are '+str(len(unique_pType))+' different Point Type values')
+            log.info('Dataset contains files with Point Types: ')
+            for val in unique_pType:
+                log.info(str(val))
+        else:
+            stdout.info("PASS: All files have the same Point Type: "+str(unique_pType))
+            log.info("PASS: All files have the same Point Type: "+str(unique_pType))
+
+        log.info('------------------------------------------------------\n')        
+    #----------------------------------------------------------------------    
+
+    #Check the global encoding of all files, and if they are uniform
+    #----------------------------------------------------------------------
+    if config['GlobalEncodingCheck']:
+        stdout.info('Checking if Global Encoding is uniform...')
+        log.info('------------------------------------------------------')    
+        log.info('Checking if Global Encoding is uniform...')
+        GE        = getGlobalEncoding(json)          
+        unique_GE = set(GE.GlobalEncoding)
+        if len(unique_GE) > 1:
+            log.info('WARNING: More than 1 Global Encoding for the lidar files')
+            log.info('There are '+str(len(unique_GE))+' different Global Encoding values')
+            log.info('Dataset contains files with Global Encoding Values of: ')
+            for val in unique_GE:
+                log.info(str(val))
+        else:
+            stdout.info("PASS: All files have the same Global Encoding Value: "+str(unique_GE))
+            log.info("PASS: All files have the same Global Encoding Value: "+str(unique_GE))
+
+        log.info('------------------------------------------------------\n')        
+    #----------------------------------------------------------------------    
+
+
+
+    #Create Boundary via PDAL
+    #----------------------------------------------------------------------
+    if config['CreatePDALBoundary']:
+        start_PDAL = datetime.now()
+        stdout.info('Creating Data Boundary with PDAL...')
+        log.info('Creating Data Boundary with PDAL...')        
+        log.info('------------------------------------------------------')    
+        CreateBounds(infiles,config['bounds_PDAL'],
+                     config['epsg'])
+        stdout.info("PASS: Created initial boundary with PDAL...")
+        log.info('PASS:Created initial boundary with PDAL...')
+        
+        DissolveBounds(config['bounds_PDAL'],config['bounds_PDALmerge'],
+                       buffer=config['BufferSize'])
+        stdout.info('PASS: Dissolved boundary with PDAL...')
+        log.info('PASS: Dissolved boundary with PDAL...')
+        
+        end_PDAL = datetime.now()
+        log.info('PASS: PDAL Boundary Creation took:\n')
+        log.info('{}\n'.format(end_PDAL - start_PDAL))
+
+        getArea(config['bounds_PDALmerge'],config['bounds_PDALmergeArea'])
+        stdout.info('PASS: Calculated Boundary Area with PDAL...')
+        log.info('PASS: Calculated Boundary Area with PDAL...')
+
+        shape2KML(config['bounds_PDALmergeArea'],config['bounds_PDALKML'])
+        stdout.info("PASS: Converted PDAL-derived boundary to KML")        
+        log.info("PASS: Converted PDAL-derived boundary to KML")
+        log.info('------------------------------------------------------\n')        
+    #----------------------------------------------------------------------
+
+
+    #----------------------------------------------------------------------    
+    if config['CreateLASBoundary']:
+        start_LAS = datetime.now()
+        stdout.info('Creating Data Boundary with LASTools...')
+        log.info('Creating Data Boundary with LASTools...')        
+        log.info('------------------------------------------------------')            
+        LASBoundary(infiles,config['bounds_LT'],
+                    rand_fract=config['randFrac'],
+                    concavity=config['concavity'],
+                    wine_path=config['winePath'])
+        end_LAS = datetime.now()
+
+        stdout.info("PASS: Created boundary with LASTools...")
+        log.info('PASS:Created boundary with LASTools...')
+        log.info('PASS: LASTools Boundary Creation took:\n')
+        log.info('{}\n'.format(end_LAS - start_LAS))
+
+        getArea(config['bounds_LT'],config['bounds_LTArea'])
+        stdout.info('PASS: Calculated Boundary Area with LASTools...')
+        log.info('PASS: Calculated Boundary Area with LASTools...')
+
+        shape2KML(config['bounds_LTArea'],config['bounds_LTKML'])
+        stdout.info("PASS: Converted LASTools-derived boundary to KML")        
+        log.info("PASS: Converted LASTools-derived boundary to KML")
+        log.info('------------------------------------------------------\n')        
+    #----------------------------------------------------------------------
+
+    #----------------------------------------------------------------------
+    if config['Translate2Tiff']:
+        stdout.info('Convert Raster to TIFF Format...')
+        log.info('Convert Raster to TIFF Format...')        
+        log.info('------------------------------------------------------')            
+        Translate2Tiff(infiles,outdir=config['RasOutDir'],
+                       xblock=config['ras_xBlock'],
+                       yblock=config['ras_yBlock'],
+                       recursive=config['recursive'],
+                       progress=0)
+        stdout.info("PASS: Converted Raster(s) to TIFF(s)")
+        log.info("PASS: Converted Raster(s) to TIFF(s)")                
+        log.info('------------------------------------------------------\n')        
+    #----------------------------------------------------------------------        
+
+    #----------------------------------------------------------------------
+    if config['Warp2Tiff']:
+        stdout.info('Reprojecting TIFFs...')
+        log.info('Reprojecting TIFFs...')        
+        log.info('------------------------------------------------------')            
+        Warp2Tiff(infiles,config['warp_t_srs'],
+                  outdir="TIFFs",xblock=config['ras_xBlock'],
+                  yblock=config['ras_yBlock'],
+                  recursive=config['recursive'],progress=0)
+
+        stdout.info("PASS: Reprojected TIFFs")        
+        log.info("PASS: Reprojected TIFFs")        
+        log.info('------------------------------------------------------\n')        
+    #----------------------------------------------------------------------
+        
+
+    ingest_end_time = datetime.now()
+    log.info('Total Ingest Time:\n')
+    log.info('{}\n'.format(ingest_end_time - ingest_start_time))
+    
+    stdout.info("Program finished successfully!")
+    log.info("\nProgram finished successfully!")
+    log.info('------------------------------------------------------\n')
+
+    
+    # remember to close the handlers. This will close the log.
+    for handler in log.handlers.copy():
+        log.removeFilter(handler)
+        log.removeHandler(handler)
+        handler.flush()
+        handler.close()
+
+    for handler in stdout.handlers.copy():
+        stdout.removeFilter(handler)
+        stdout.removeHandler(handler)
+        handler.flush()
+        handler.close()
+
+    
+#End runIngest module
+#-----------------------------------------------------------------    
     
 if __name__ == "__main__":
     #initialize directories by running:
@@ -1551,3 +1936,4 @@ if __name__ == "__main__":
              pipeline_template=pipeline_template)
 
 
+ 

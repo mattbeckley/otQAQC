@@ -3,10 +3,17 @@
         {
             "type" : "readers.las"
 	},
+	{
+            "type":"filters.reprojection",
+            "in_srs":"EPSG:26910+5703",
+            "out_srs":"EPSG:6339+5703"
+        },
         {
             "type" : "writers.las",
-            "a_srs": "EPSG:6342+5703"
+	    "compression": "laszip",
+            "a_srs": "EPSG:6339+5703"
 	}
 
     ]
 }
+
