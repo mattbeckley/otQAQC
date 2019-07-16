@@ -49,6 +49,10 @@
 - [ ] Uploaded LAZ, and rasters with rsync to beta on xx/xx/xxxx
 - [ ] When data is made public, notify Minh to turn on "Bulk Download"
       option.
+- [ ] When data is made public add project to PI's registration page so
+      they can see stats on their dataset (if applicable)
+- [ ] When data is made public, add to Catalog Service for the Web (CSW)
+
 
 *  Summary
 **  Original Check Before ingest

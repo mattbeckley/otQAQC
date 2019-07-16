@@ -9,8 +9,7 @@
    creating boundaries of the data, and calculating area.
 
 *  How to run the QA/QC Software
--  Clone this repo:  git clone
-   https://www.unavco.org/gitlab/beckley/otdataingest.git
+-  Clone this repo:  git clone https://www.unavco.org/gitlab/beckley/otQAQC.git
 -  Rename cloned directory to OT shortname 
 -  cd into newly renamed directory
 -  run the main level code in python3, and specify your working

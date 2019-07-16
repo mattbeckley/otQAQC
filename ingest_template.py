@@ -5,7 +5,7 @@ import sys,os,ipdb
 import ot_utils as ot
 
 """Name: 
-   Description: config file to run the QA/QC of WA18_Wall 
+   Description: config file to run the QA/QC of 
    Notes:
 """
 
