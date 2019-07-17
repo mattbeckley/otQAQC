@@ -1143,44 +1143,49 @@ def Convert2LAZ(files,pipeline,outdir='',recursive=0,progress=1):
 
     if progress:
         bar.finish()
+
+#end of Convert2LAZ
 #----------------------------------------------------------------------        
 
 #----------------------------------------------------------------------    
-def AddCRS2Header(indir,pipeline,wild=r'.*[LlAaSsZz]$',verbose=1,
+def AddCRS2Header(files,pipeline,outdir='',recursive=0,
                   out_suffix='_wCRS.laz',overwrite=0):
+
+
     #reads in a pipline and executes it.  This module should add the CRS
     #info to the header of the files...
 
-    #Additions:
-    #- add specific output dir for this module?
-    #- add verbose option.    
-    
     #check that pipeline exists:
     fcheck = CheckFile(pipeline)
     if fcheck is False:
         FileWarning(pipeline)
-       
-    #check that directory exists:
-    dirCheck = CheckDir(indir)    
-    if dirCheck is False:
-        DirWarning(indir)
 
-    absPath = os.path.abspath(indir)
-
-    #get absolute basepath without filename
-    basePath = os.path.dirname(absPath)
+    #check that output directory exists...
+    if recursive == 0:
+        dirCheck = CheckDir(outdir)    
+        if dirCheck is False:
+            DirWarning(outdir)
     
-    #find all LAS or LAZ files - account for case
-    files = [f for f in os.listdir(absPath) if re.match(wild, f)]
-    num_files = len(files)
+    for infile in files:
 
-    count=1
-    for f in files:
-        infile = os.path.join(absPath,f)
+        outfile = os.path.basename(outfile)
 
-        if verbose:
-            print('Adding CRS header to file #'
-                  +str(count)+' of '+str(num_files))
+        if recursive == 1:
+            outdir = os.path.dirname(infile)
+            outfile = os.path.join(outdir,outfile)
+        elif recursive == 1 and len(outdir) > 1:
+            print('Cannot set both recursive AND a output directory')
+            print('Recursive keyword will write output to same \
+                   directory as input directory.')
+            ipdb.set_trace()
+        elif recursive == 0 and len(outdir) == 0:
+            print('Must set either recursive OR a output directory')
+            print('Recursive keyword will write output to same \
+                   directory as input directory.')
+            ipdb.set_trace()            
+        else:
+            outfile = os.path.join(outdir,outfile)
+        
         
         #check that it is a las file
         suffix = infile.split(".")[-1]
@@ -1712,7 +1717,17 @@ def RunQAQC(config):
         log.info('------------------------------------------------------')    
         log.info('Checking for missing horizontal CRS...')
         if any(htest):
+            stdout.info("FAIL: Some of the files are missing Horizontal CRS info")            
             log.info("FAIL: Some of the files are missing Horizontal CRS info")
+
+            fname = CRS_check[CRS_check.MissingHCRS == 1]['filename']
+            fname_L = fname.to_list()
+
+            log.info("The following files are missing Horizontal CRS info:\n")
+            for f in fname_L:
+                 log.info(f)
+
+            
             ipdb.set_trace()
         else:
             stdout.info("PASS:  All files have a horizontal CRS")            
@@ -1730,6 +1745,14 @@ def RunQAQC(config):
         if any(vtest):
             sdtout.info("WARNING: Some (or ALL) of the files are missing Vertical CRS info")
             log.info("WARNING: Some (or ALL) of the files are missing Vertical CRS info")
+
+            fname = CRS_check[CRS_check.MissingVCRS == 1]['filename']
+            fname_L = fname.to_list()
+
+            log.info("The following files are missing Vertical CRS info:\n")
+            for f in fname_L:
+                 log.info(f)
+
         else:
             stdout.info("PASS:  All files have a vertical CRS")
             log.info("PASS:  All files have a vertical CRS")
