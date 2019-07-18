@@ -36,8 +36,8 @@ config1['overwrite']    = 0
 config1['LAZDir_out']   = '/volumes/OT6TB/WALL_TEST/LAZ'
 config1['pipeline']     = os.path.join(scripts_dir,'pipeline.json')
 
-#Run Module to Convert LAS2LAS...
-#ot.RunQAQC(config1)
+#Run Module to add CRS to lidar files (LAS or LAZ)
+ot.RunQAQC(config1)
 #----------------------------------------------------------------------
 
 
@@ -150,6 +150,8 @@ config6['Warp2Tiff'] = 1
 config6['ras_xBlock'] = 256
 config6['ras_yBlock'] = 256
 config6['warp_t_srs'] = 6339
+
+#Run module to reproject rasters...
 #ot.RunQAQC(config6)
 #----------------------------------------------------------------------
 
@@ -166,8 +168,8 @@ config7['getFilesDir'] =  '/volumes/OT6TB/WALL_TEST/rasters'
 config7['getFilesWild'] = '.*\_EPSG6339.tif$'
 config7['recursive'] = 1
 
-#Run module to convert rasters to tiffs
-ot.RunQAQC(config7)
+#Run module to re-check the raster metadata
+#ot.RunQAQC(config7)
 #----------------------------------------------------------------------
 
     

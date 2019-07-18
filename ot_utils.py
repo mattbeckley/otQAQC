@@ -1151,9 +1151,11 @@ def Convert2LAZ(files,pipeline,outdir='',recursive=0,progress=1):
 #----------------------------------------------------------------------        
 
 #----------------------------------------------------------------------    
-def AddCRS2Header(files,pipeline,outdir='',recursive=0,
-                  out_suffix='_wCRS',overwrite=0):
+def AddCRS2Header(files,log_dir,pipeline,outdir='',recursive=0,
+                  out_suffix='_wCRS',overwrite=0,progress=1):
 
+    if progress:
+        bar = Bar('Adding CRS to Lidar files:', max=len(files))
 
     #reads in a pipline and executes it.  This module should add the CRS
     #info to the header of the files...
@@ -1200,7 +1202,7 @@ def AddCRS2Header(files,pipeline,outdir='',recursive=0,
             #write errors to a file
             cmd = ['pdal pipeline '+pipeline+' --readers.las.filename=\"'
                    +infile+'\" --writers.las.filename=\"'
-                   +outfile+'\" 2>> '+os.path.join(absPath,'CRSDefineErrors.txt')]
+                   +outfile+'\" 2>> '+os.path.join(log_dir,'CRSDefineErrors.txt')]
             
             #needed the shell=True for this to work
             p = subprocess.run(cmd,shell=True)#,stderr=subprocess.PIPE)
@@ -1214,7 +1216,12 @@ def AddCRS2Header(files,pipeline,outdir='',recursive=0,
                 cmd2 = ['mv \"'+outfile+'\" \"'+infile+'\"']
                 p2 = subprocess.run(cmd2,shell=True)
 
-        count+=1
+        if progress:        
+            bar.next()
+
+    if progress:
+        bar.finish()
+
 #----------------------------------------------------------------------        
 
 #----------------------------------------------------------------------
@@ -1664,7 +1671,7 @@ def RunQAQC(config):
         stdout.info('Adding CRS to header of lidar files...')
         log.info('------------------------------------------------------')    
         log.info('Adding CRS to header of lidar files...')
-        AddCRS2Header(infiles,config['pipeline'],
+        AddCRS2Header(infiles,config['log_dir'],config['pipeline'],
                       outdir=config['LAZDir_out'],
                       recursive=config['recursive'],
                       out_suffix=config['fsuffix'],
