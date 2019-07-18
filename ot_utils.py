@@ -36,6 +36,9 @@ def initializeNullConfig():
     #Config file for Converting LAS2LAS
     config = {'log_dir':'',
               'ingestLog':'',
+              'AddCRS2Header':0,
+              'fsuffix':'',
+              'overwrite':0,
               'LAS2LAZ':0,
               'getFilesWild':'',
               'getFilesDir': '',
@@ -1149,7 +1152,7 @@ def Convert2LAZ(files,pipeline,outdir='',recursive=0,progress=1):
 
 #----------------------------------------------------------------------    
 def AddCRS2Header(files,pipeline,outdir='',recursive=0,
-                  out_suffix='_wCRS.laz',overwrite=0):
+                  out_suffix='_wCRS',overwrite=0):
 
 
     #reads in a pipline and executes it.  This module should add the CRS
@@ -1168,8 +1171,12 @@ def AddCRS2Header(files,pipeline,outdir='',recursive=0,
     
     for infile in files:
 
-        outfile = os.path.basename(outfile)
+        #isolate filename
+        outfile = os.path.basename(infile)
 
+        #add suffix to output - not overwriting files....
+        outfile  = outfile.replace('.',out_suffix+'.')
+        
         if recursive == 1:
             outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
@@ -1186,22 +1193,7 @@ def AddCRS2Header(files,pipeline,outdir='',recursive=0,
         else:
             outfile = os.path.join(outdir,outfile)
         
-        
-        #check that it is a las file
-        suffix = infile.split(".")[-1]
-
-        if suffix  == 'las':            
-            outfile = infile.replace('.las',out_suffix)
-        elif suffix  == 'LAS':
-            outfile = infile.replace('.LAS',out_suffix)           
-        elif suffix  == 'LAZ':
-            outfile = infile.replace('.LAZ',out_suffix)           
-        elif suffix  == 'laz':
-            outfile = infile.replace('.laz',out_suffix)
-        else:
-            print('Input file: \n'+infile+'\nhas a non-standard file suffix')
-            ipdb.set_trace()
-        
+                
         if outfile:
             #abs_outfile = os.path.join(absPath,outfile)
             #abs_infile  = os.path.join(absPath,infile)
@@ -1668,6 +1660,17 @@ def RunQAQC(config):
     infiles = getFiles(config['getFilesDir'],wild=config['getFilesWild'],
                        recursive=config['recursive'])
     
+    if config['AddCRS2Header']:
+        stdout.info('Adding CRS to header of lidar files...')
+        log.info('------------------------------------------------------')    
+        log.info('Adding CRS to header of lidar files...')
+        AddCRS2Header(infiles,config['pipeline'],
+                      outdir=config['LAZDir_out'],
+                      recursive=config['recursive'],
+                      out_suffix=config['fsuffix'],
+                      overwrite=config['overwrite'])
+
+        log.info('------------------------------------------------------\n')
     
     if config['LAS2LAZ']:
         stdout.info('Converting files from LAS to LAZ...')
