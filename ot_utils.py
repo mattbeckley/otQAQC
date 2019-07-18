@@ -1154,6 +1154,11 @@ def Convert2LAZ(files,pipeline,outdir='',recursive=0,progress=1):
 def AddCRS2Header(files,log_dir,pipeline,outdir='',recursive=0,
                   out_suffix='_wCRS',overwrite=0,progress=1):
 
+    #test for a blank string as suffix.  if so, make one so that it
+    #doesn't bomb if overwriting.  
+    if not out_suffix.strip():
+        out_suffix = '_wCRS'
+        
     if progress:
         bar = Bar('Adding CRS to Lidar files:', max=len(files))
 
@@ -1201,20 +1206,21 @@ def AddCRS2Header(files,log_dir,pipeline,outdir='',recursive=0,
             #abs_infile  = os.path.join(absPath,infile)
             #write errors to a file
             cmd = ['pdal pipeline '+pipeline+' --readers.las.filename=\"'
-                   +infile+'\" --writers.las.filename=\"'
-                   +outfile+'\" 2>> '+os.path.join(log_dir,'CRSDefineErrors.txt')]
-            
+                   +infile+'\" --writers.las.filename=\"'+outfile+'\"'
+                   +' --writers.las.forward=\"header\" + 2>> '
+                   +os.path.join(log_dir,'CRSDefineErrors.txt')]
+
             #needed the shell=True for this to work
             p = subprocess.run(cmd,shell=True)#,stderr=subprocess.PIPE)
 
         if overwrite:
-            in_suffix = suffix.lower()
-            Over_out_suffix = outfile.split(".")[-1]
-            Over_out_suffix = Over_out_suffix.lower()
+            #in_suffix = suffix.lower()
+            #Over_out_suffix = outfile.split(".")[-1]
+            #Over_out_suffix = Over_out_suffix.lower()
 
-            if in_suffix == Over_out_suffix:
-                cmd2 = ['mv \"'+outfile+'\" \"'+infile+'\"']
-                p2 = subprocess.run(cmd2,shell=True)
+            #if in_suffix == Over_out_suffix:
+            cmd2 = ['mv \"'+outfile+'\" \"'+infile+'\"']
+            p2 = subprocess.run(cmd2,shell=True)
 
         if progress:        
             bar.next()
