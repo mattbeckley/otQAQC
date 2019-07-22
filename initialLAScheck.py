@@ -143,60 +143,6 @@ config4['bounds_LTKML'] = os.path.join(bounds_base,'LTBoundswArea.kml')
 #----------------------------------------------------------------------
 
 
-
-#Config file for Checking Original Rasters for Metadata
-#----------------------------------------------------------------------
-#module to initialize the config file to all null values?
-config5 = ot.initializeNullConfig()
-
-config5['CheckRasMeta'] = 1
-config5['log_dir'] = log_dir
-config5['ingestLog'] = os.path.join(log_dir,shortname+'_TEST_QAQCLog.txt')
-config5['getFilesDir'] =  '/volumes/OT6TB/CA17_Dietrich/2017_ESRI_50cm'
-config5['getFilesWild'] = '.*\.flt$'
-config5['recursive'] = 1
-
-#Run module to convert rasters to tiffs
-#ot.RunQAQC(config5)
-#----------------------------------------------------------------------
-
-
-#Config file for reprojecting and converting to tiffs.
-#----------------------------------------------------------------------
-##module to initialize the config file to all null values
-config6 = ot.initializeNullConfig()
-
-config6['log_dir'] = log_dir
-config6['ingestLog'] = os.path.join(log_dir,shortname+'_TEST_QAQCLog.txt')
-config6['getFilesDir'] =  '/volumes/OT6TB/CA17_Dietrich/2017_ESRI_50cm'
-config6['getFilesWild'] = '.*\.flt$'
-config6['recursive'] = 1
-config6['Warp2Tiff'] = 1
-config6['ras_xBlock'] = 256
-config6['ras_yBlock'] = 256
-config6['warp_t_srs'] = '6339'
-
-#Run module to reproject rasters...
-#ot.RunQAQC(config6)
-#----------------------------------------------------------------------
-
-
-#Make sure the proper CRS info is in the header.
-#----------------------------------------------------------------------
-#module to initialize the config file to all null values?
-config7 = ot.initializeNullConfig()
-config7['SetRasterCRS'] = 1
-config7['log_dir'] = log_dir
-config7['ingestLog'] = os.path.join(log_dir,shortname+'_TEST_QAQCLog.txt')
-config7['getFilesDir'] =  '/volumes/OT6TB/CA17_Dietrich/2017_ESRI_50cm'
-config7['getFilesWild'] = '.*\.tif$'
-config7['recursive'] = 1
-config7['a_srs']='6339+5703'
-
-#Run module to re-check the raster metadata
-#ot.RunQAQC(config7)
-#----------------------------------------------------------------------
-
     
 
 

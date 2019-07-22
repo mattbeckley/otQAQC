@@ -59,7 +59,7 @@ def initializeNullConfig():
               'CreatePDALBoundary':0,
               'bounds_PDAL':'',
               'BufferSize':0,
-              'epsg':0,
+              'epsg':'',
               'bounds_PDALmerge':'',
               'bounds_PDALmergeArea':'',
               'bounds_PDALKML':'',
@@ -71,12 +71,14 @@ def initializeNullConfig():
               'bounds_LTArea':'',
               'bounds_LTKML':'',
               'CheckRasMeta':0,
+              'SetRasterCRS':0,
               'Translate2Tiff':0,
+              'a_srs':'',
               'RasOutDir':'',
               'Warp2Tiff':0,
               'ras_xBlock':0,
               'ras_yBlock':0,
-              'warp_t_srs':0}
+              'warp_t_srs':''}
 
     return config
 #----------------------------------------------------------------------
@@ -229,18 +231,19 @@ def CreatePDALInfo(files,outdir,outfile,errors='errors.txt',progress=1):
         
         p2 = subprocess.run(cmd2,shell=True,stderr=subprocess.PIPE)
 
-        #check for errors.  Don't want to add a comma if there were problems.
+        #check for errors.  Don't want to stop execution because some
+        #errors could be minor?
         if (p2.returncode == 1) or (len(p2.stderr) > 0):
             cmd3 = ['echo Error creating PDAL info for '
                     +f+'.  Standard Error of: '
                     +'\"'+str(p2.stderr)+'\" >> '+out_errors]            
 
-            #adds and extrac comma for some errors, and I don't know why
+            #adds an extra comma for some errors, and I don't know why
             p3 = subprocess.run(cmd3,shell=True,stderr=subprocess.PIPE)
-        else:
-            #separate JSON files with ',' so I can read in as array
-            cmd4 = ['echo "," >> '+out_fpath]
-            p4 = subprocess.run(cmd4,shell=True,stderr=subprocess.PIPE)
+
+        #separate JSON files with ',' so I can read in as array
+        cmd4 = ['echo "," >> '+out_fpath]
+        p4 = subprocess.run(cmd4,shell=True,stderr=subprocess.PIPE)
 
         if progress:
             bar.next()
@@ -437,6 +440,11 @@ def Translate2Tiff(files,log,outdir="",xblock=128,yblock=128,
     log.info('Convert Raster to TIFF Format...')        
     log.info('------------------------------------------------------')                
 
+    #check for a_srs
+    if not a_srs:
+        print("FAIL: Must set a_srs value")
+        ipdb.set_trace()
+    
     #check that output directory exists...
     if recursive == 0:
         dirCheck = CheckDir(outdir)    
@@ -733,6 +741,46 @@ def CheckRasterInfo(infiles):
 
 #----------------------------------------------------------------------
 
+#----------------------------------------------------------------------
+def SetRasterCRS(infiles,log,a_srs):
+    """
+    Description:  Set the CRS info in the header of raster files.
+    Date Created: 07/22/2019
+
+    Input(s): list of raster files 
+    Notes:    Adding the header values in place, so no need to write to
+    a separate location.
+    """
+
+    log.info('Adding CRS Info to Header...')        
+    log.info('------------------------------------------------------')            
+
+    for f in infiles:
+        fcheck = CheckFile(f)
+        if fcheck is False:
+            FileWarning(f)
+        
+        #need double quotes for paths with spaces!
+        cmd = ['gdal_edit.py -a_srs \"EPSG:'+str(a_srs)+'\" '+f]
+
+        #needed the shell=True for this to work
+        p = subprocess.run(cmd,shell=True,stderr=subprocess.PIPE)
+
+        errors = []
+        #Want to know if there is a problem...
+        if (p.returncode == 1):
+            print("WARNING: Problem with Adding CRS to header for file:\n"+f)            
+            log.info("WARNING: Problem with Adding CRS to header for file:\n"+f)
+            errors.append(1)
+                 
+    if any(errors):
+        log.info("WARNING: Problem Adding CRS info to some Raster(s)")
+    else:
+        log.info("PASS: Added CRS Info to Raster(s)")
+        
+    log.info('------------------------------------------------------\n')        
+
+#----------------------------------------------------------------------
 
 #----------------------------------------------------------------------
 def LAZCount(indir):
@@ -2065,9 +2113,21 @@ def RunQAQC(config):
         stdout.info("PASS: Checked Raster Metadata")
         log.info("PASS: Checked Raster Metadata")                         
         log.info('------------------------------------------------------\n')        
+
+    #End checking Raster metadata
     #----------------------------------------------------------------------                 
-                 
+
+    #Setting CRS info in header of a raster
     #----------------------------------------------------------------------
+    if config['SetRasterCRS']:
+        stdout.info('Adding CRS Info to Raster...')        
+        SetRasterCRS(infiles,log,config['a_srs'])
+
+        stdout.info('PASS: Added CRS Info to Raster...')        
+    #----------------------------------------------------------------------
+
+    #Converting a raster from a Non-TIFF to a tiff.
+    #----------------------------------------------------------------------        
     if config['Translate2Tiff']:
         stdout.info('Convert Raster to TIFF Format...')
 
@@ -2079,6 +2139,7 @@ def RunQAQC(config):
         stdout.info("PASS: Converted Raster(s) to TIFF(s)")
     #----------------------------------------------------------------------        
 
+    #RE-Projecting a raster into a different Projection...
     #----------------------------------------------------------------------
     if config['Warp2Tiff']:
         stdout.info('Reprojecting TIFFs...')
