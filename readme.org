@@ -10,7 +10,7 @@
 
 *  How to run the QA/QC Software
 -  Clone this repo:  git clone https://www.unavco.org/gitlab/beckley/otQAQC.git
--  Rename cloned directory to OT shortname 
+-  Rename cloned directory to OT shortname (mv otQAQC/ new_shortname)
 -  cd into newly renamed directory
 -  run the main level code in python3, and specify your working
    directory as the first argument:

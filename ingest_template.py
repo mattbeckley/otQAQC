@@ -5,7 +5,7 @@ import sys,os,ipdb
 import ot_utils as ot
 
 """Name: 
-   Description: config file to run the QA/QC of 
+   Description: config file to run QA/QC of datasets
    Notes:
 """
 

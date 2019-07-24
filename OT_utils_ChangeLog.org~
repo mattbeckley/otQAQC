@@ -1,0 +1,27 @@
+*  Needed work:
+   -  Check that DSM > DEM.  Randomized points along surface and sample.
+   -  Add routine to create set of randomized points in the boundary and
+      sample the rasters.  Verify that DSM > DTM.
+   - for PDAL boundaries - need to put in checks for geometry errors.
+   - module to merged shapefiles - may already have one in my utils..
+   - check for multiple image formats.. (use set command)
+   - problems with Dissolve.  Need to check for errors.  sometimes it
+     will jsut write out a dbf, and give no error
+   - all modules should probably take full path.  Then I can have a
+     separate module that will split paths and return basename,
+     dirname, filename without suffix, suffix only, etc.
+   -  For LAS conversion, may need to add a las2las version because
+      PDAL seems to give errors  when lastools doesn't.
+   -  when working with the rasters, make sure to have an option to add compression
+   -  May need to put in a check that header variables haven't been
+      changed from the originals?  Or could just do a comparison using this
+      code to make sure the versions are the same?
+   - get this command into the rasters:
+     gdal_translate -of GTIFF -co "COMPRESS=LZW" -co "TILED=YES" -co
+     "blockxsize=128" -co "blockysize=128" TEST.flt
+     TEST_GDAL_LZW_TILE_xyblock.tif
+   -  how to deal with the Boundary Creation better - when are there too
+      many points? (NZ18_Marlbo).
+   -  how to handle directories with *._ files.  ex: ._2017_DEF_50cm.flt
+      This has already happened a couple of times.  
+
