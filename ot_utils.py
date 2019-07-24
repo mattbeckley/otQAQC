@@ -39,6 +39,7 @@ def initializeNullConfig():
               'AddCRS2Header':0,
               'fsuffix':'',
               'overwrite':0,
+              'ftype':'f',
               'LAS2LAZ':0,
               'getFilesWild':'',
               'getFilesDir': '',
@@ -388,8 +389,8 @@ def CheckShape(infile):
     return fcheck
 #----------------------------------------------------------------------
 
-def Translate2Tiff(files,log,outdir="",xblock=128,yblock=128,
-                   recursive=0,progress=0):
+def Translate2Tiff(files,log,outdir="",xblock=256,yblock=256,
+                   progress=0):
 
     """
     Description:  This module will "translate" a tif using
@@ -405,29 +406,20 @@ def Translate2Tiff(files,log,outdir="",xblock=128,yblock=128,
     that these files can be in different directories.
     
     Output(s):  
-    1.  Output will be written to the outdir, or if the recursive
-    keyword is set, then the tiff for each file in the list will be
-    written to the same directory as the path of the inputfile in the
-    list.
+    1.  Output will be written to the outdir.  Otherwise, the tiff for
+    each file in the list will be written to the same directory as the
+    path of the inputfile in the list.
 
     Keyword(s):
     1.  outdir.  Set this to a single directory if you want all the
-    output written to a single directory.  If this is what you want,
-    then recursive should be set to 0.
+    output written to a single directory.  
     2.  xblock.  This is the size of the tiles that gdal will tile at in
     the X direction.  This is usually: 128, 256, or 512.  default is set
     to 128.
     3.  yblock.  This is the size of the tiles that gdal will tile at in
     the Y direction.  This is usually: 128, 256, or 512.  default is set
     to 128.
-    4.  recursive.  Set this to 1 if you are feeding in a list of files
-    that have different paths.  In this way, the output tiff will be
-    written to the same directory as the input file.  This is useful if
-    you have a directory structure with lots of subdirectories, and you
-    want to do some comparisons (ex: Utah dataset).  If this is set to
-    0, then all the output will go to the path specified in the 'outdir'
-    keyword.  
-    5.  progress.  Set this to 1 if you want to see a progress bar.  
+    4.  progress.  Set this to 1 if you want to see a progress bar.  
 
     Update(s):
     Notes:    
@@ -440,13 +432,8 @@ def Translate2Tiff(files,log,outdir="",xblock=128,yblock=128,
     log.info('Convert Raster to TIFF Format...')        
     log.info('------------------------------------------------------')                
 
-    #check for a_srs
-    if not a_srs:
-        print("FAIL: Must set a_srs value")
-        ipdb.set_trace()
-    
     #check that output directory exists...
-    if recursive == 0:
+    if len(outdir) > 1:
         dirCheck = CheckDir(outdir)    
         if dirCheck is False:
             DirWarning(outdir)
@@ -461,22 +448,15 @@ def Translate2Tiff(files,log,outdir="",xblock=128,yblock=128,
 
         #strip out suffix and add tiff suffix.
         outfile = outbase.split(".")[0]+".tif" 
-        
-        if recursive == 1:
+
+        #default is to write in same directory as input file.  If you
+        #want output to another directory, you must set one.
+        if len(outdir) > 1:
+            outfile = os.path.join(outdir,outfile)
+        else:
             outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
-        elif recursive == 1 and len(outdir) > 1:
-            print('Cannot set both recursive AND a output directory')
-            print('Recursive keyword will write output to same \
-                   directory as input directory.')
-            ipdb.set_trace()
-        elif recursive == 0 and len(outdir) == 0:
-            print('Must set either recursive OR a output directory')
-            print('Recursive keyword will write output to same \
-                   directory as input directory.')
-            ipdb.set_trace()            
-        else:
-            outfile = os.path.join(outdir,outfile)
+           
         
         errorfile = os.path.join(outdir,'Translate2Tiff_errors.txt')
 
@@ -517,7 +497,7 @@ def Translate2Tiff(files,log,outdir="",xblock=128,yblock=128,
     
 #----------------------------------------------------------------------
 def Warp2Tiff(files,log,t_srs,outdir='',xblock=128,yblock=128,
-              recursive=0,progress=0):
+              progress=0):
     """
     Description:  This module will "transform" a tif using
     gdalwarp.  Use this module if you want to actually do a reprojection
@@ -534,29 +514,20 @@ def Warp2Tiff(files,log,t_srs,outdir='',xblock=128,yblock=128,
     that as an input right now, but that may be necessary in the future?
 
     Output(s):  
-    1.  Output will be written to the outdir, or if the recursive
-    keyword is set, then the tiff for each file in the list will be
-    written to the same directory as the path of the inputfile in the
-    list.
+    1.  Output will be written to the outdir.  Otherwise, the tiff for
+    each file in the list will be written to the same directory as the
+    path of the inputfile in the list.
 
     Keyword(s):
     1.  outdir.  Set this to a single directory if you want all the
-    output written to a single directory.  If this is what you want,
-    then recursive should be set to 0.
+    output written to a single directory.  
     2.  xblock.  This is the size of the tiles that gdal will tile at in
     the X direction.  This is usually: 128, 256, or 512.  default is set
     to 128.
     3.  yblock.  This is the size of the tiles that gdal will tile at in
     the Y direction.  This is usually: 128, 256, or 512.  default is set
     to 128.
-    4.  recursive.  Set this to 1 if you are feeding in a list of files
-    that have different paths.  In this way, the output tiff will be
-    written to the same directory as the input file.  This is useful if
-    you have a directory structure with lots of subdirectories, and you
-    want to do some comparisons (ex: Utah dataset).  If this is set to
-    0, then all the output will go to the path specified in the 'outdir'
-    keyword.  
-    5.  progress.  Set this to 1 if you want to see a progress bar.  
+    4.  progress.  Set this to 1 if you want to see a progress bar.  
 
     Update(s):
 
@@ -571,7 +542,7 @@ def Warp2Tiff(files,log,t_srs,outdir='',xblock=128,yblock=128,
     log.info('------------------------------------------------------')            
 
     #check that output directory exists...
-    if recursive == 0:
+    if len(outdir) > 1:
         dirCheck = CheckDir(outdir)    
         if dirCheck is False:
             DirWarning(outdir)
@@ -584,28 +555,17 @@ def Warp2Tiff(files,log,t_srs,outdir='',xblock=128,yblock=128,
         #get basename
         outbase = os.path.basename(infile)
 
-        
-        if recursive == 1:
-            #with recursive, you cannot overwrite input file, so need to
+        if len(outdir) > 1:
+            #strip out suffix and add tiff suffix.
+            outfile = outbase.split(".")[0]+".tif"             
+            outfile = os.path.join(outdir,outfile)
+        else:
+            #in GDAL, you cannot overwrite input file, so need to
             #output a new file with EPSG as suffix
             outfile = outbase.split(".")[0]+"_EPSG"+str(t_srs)+".tif" 
             outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
-        elif recursive == 1 and len(outdir) > 1:
-            print('Cannot set both recursive AND a output directory')
-            print('Recursive keyword will write output to same \
-                   directory as input directory.')
-            ipdb.set_trace()
-        elif recursive == 0 and len(outdir) == 0:
-            print('Must set either recursive OR a output directory')
-            print('Recursive keyword will write output to same \
-                   directory as input directory.')
-            ipdb.set_trace()            
-        else:
-            #strip out suffix and add tiff suffix.
-            outfile = outbase.split(".")[0]+".tif"             
-            outfile = os.path.join(outdir,outfile)
-        
+            
         errorfile = os.path.join(outdir,'Transform2Tiff_errors.txt')
 
         errors = []
@@ -1117,12 +1077,10 @@ def checkLASVersion(json):
 
 
 #----------------------------------------------------------------------    
-def Convert2LAZ(files,pipeline,outdir='',recursive=0,progress=1):
+def Convert2LAZ(files,pipeline,outdir='',progress=1):
     #reads in a pipline and executes it.  technically the pipeline could
     #be anything, but this one should just convert las to laz.
-    #if recursive, write laz files to same directory as what las
-    #files are in.  These could be different dirs that I will not
-    #know ahead of time.
+
 
     #check that pipeline exists:
     fcheck = CheckFile(pipeline)
@@ -1130,7 +1088,7 @@ def Convert2LAZ(files,pipeline,outdir='',recursive=0,progress=1):
         FileWarning(pipeline)
 
     #check that output directory exists...
-    if recursive == 0:
+    if len(outdir) > 1:
         dirCheck = CheckDir(outdir)    
         if dirCheck is False:
             DirWarning(outdir)
@@ -1151,20 +1109,10 @@ def Convert2LAZ(files,pipeline,outdir='',recursive=0,progress=1):
         #get basename
         outfile = os.path.basename(outfile)
 
-        if recursive == 1:
-            outdir = os.path.dirname(infile)
+        if len(outdir) > 1:
             outfile = os.path.join(outdir,outfile)
-        elif recursive == 1 and len(outdir) > 1:
-            print('Cannot set both recursive AND a output directory')
-            print('Recursive keyword will write output to same \
-                   directory as input directory.')
-            ipdb.set_trace()
-        elif recursive == 0 and len(outdir) == 0:
-            print('Must set either recursive OR a output directory')
-            print('Recursive keyword will write output to same \
-                   directory as input directory.')
-            ipdb.set_trace()            
         else:
+            outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
         
         errorfile = os.path.join(outdir,'LAS2LAZ_errors.txt')
@@ -1199,7 +1147,7 @@ def Convert2LAZ(files,pipeline,outdir='',recursive=0,progress=1):
 #----------------------------------------------------------------------        
 
 #----------------------------------------------------------------------    
-def AddCRS2Header(files,log_dir,pipeline,outdir='',recursive=0,
+def AddCRS2Header(files,log_dir,pipeline,outdir='',
                   out_suffix='_wCRS',overwrite=0,progress=1):
 
     #test for a blank string as suffix.  if so, make one so that it
@@ -1219,7 +1167,7 @@ def AddCRS2Header(files,log_dir,pipeline,outdir='',recursive=0,
         FileWarning(pipeline)
 
     #check that output directory exists...
-    if recursive == 0:
+    if len(outdir) > 1:
         dirCheck = CheckDir(outdir)    
         if dirCheck is False:
             DirWarning(outdir)
@@ -1231,23 +1179,12 @@ def AddCRS2Header(files,log_dir,pipeline,outdir='',recursive=0,
 
         #add suffix to output - not overwriting files....
         outfile  = outfile.replace('.',out_suffix+'.')
-        
-        if recursive == 1:
+
+        if len(outdir) > 1:
+            outfile = os.path.join(outdir,outfile)
+        else:
             outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
-        elif recursive == 1 and len(outdir) > 1:
-            print('Cannot set both recursive AND a output directory')
-            print('Recursive keyword will write output to same \
-                   directory as input directory.')
-            ipdb.set_trace()
-        elif recursive == 0 and len(outdir) == 0:
-            print('Must set either recursive OR a output directory')
-            print('Recursive keyword will write output to same \
-                   directory as input directory.')
-            ipdb.set_trace()            
-        else:
-            outfile = os.path.join(outdir,outfile)
-        
                 
         if outfile:
             #abs_outfile = os.path.join(absPath,outfile)
@@ -1279,7 +1216,7 @@ def AddCRS2Header(files,log_dir,pipeline,outdir='',recursive=0,
 #----------------------------------------------------------------------        
 
 #----------------------------------------------------------------------
-def CreateBounds(infiles,out_boundary,epsg,recursive=0,edge_size=50):
+def CreateBounds(infiles,out_boundary,epsg,edge_size=50):
     #setting edge_size=10 gets a better approximation of the boundary.
     #Edge_size of 1 finds to many gaps.
     #Needed to escape asterisk to avoid getting weird errors....
@@ -1429,14 +1366,53 @@ def CreateTempFile(files,indir):
 
 
 #----------------------------------------------------------------------
-def getFiles(indir, wild='.*[LlAaZz]$',recursive=1):
+def getFiles(indir, wild='.*[LlAaZz]$',ftype='f',recursive=1):
+
+    """
+    Description: main routine to get all the files you want to work on.
+    Use Regular Expressions to get what you want.  This routine produces
+    the files that are fed into all the other routines.
+
+    Input(s): 
+    indir.  The directory that you want to search on.  I add
+    "" around it within this module, so it should be able to handle
+    directories with spaces or other weird characters.
+    
+    wild.  This is the regular expression that you want to use to filter
+    the results.
+
+    ftype.  This will almost always be 'f'.  This is what gets fed into
+    the unix find command (-type).  In rare cases where you want to
+    convert ESRI grids, you need to set this to 'd' so that it will just
+    find the ESRI grid directory and convert it properly.  
+
+    recursive.  Set this if you want to drill down to all directories.
+    Note that if you do this, then when doing conversions, if you do not
+    set an output directory, the modules will write the output to the
+    same directory as the input.
+
+    Output(s): list of filenames that match the Reg expression.
+
+    Update(s):
+    Notes:
+
+    """
+
+    
+    #type is needed because if they are ESRI GRID files, it will be a
+    #directory of files that needs to be converted.
+    ftype = ftype.lower()
+    ftype = ftype.strip()
+    if ftype not in ['f','d']:
+        print('ftype for find command must be: f or d')
+        ipdb.set_trace()
     
     #get listing of files that match the reg expression and output a
     #list.  ireg will ignore case
     if recursive == 0:
-        find_cmd = 'find \"'+indir+'\" -iregex '+wild+' -type f -maxdepth 1 -print'
+        find_cmd = 'find \"'+indir+'\" -iregex '+wild+' -type '+ftype+' -maxdepth 1 -print'
     if recursive == 1:
-        find_cmd = 'find \"'+indir+'\" -iregex '+wild+' -type f -print'
+        find_cmd = 'find \"'+indir+'\" -iregex '+wild+' -type '+ftype+' -print'
 
 
     p1 = subprocess.run(find_cmd,shell=True,stdout=PIPE)
@@ -1719,15 +1695,17 @@ def RunQAQC(config):
     #operations, you will need to run RunIngest multiple times with
     #different configs.
     infiles = getFiles(config['getFilesDir'],wild=config['getFilesWild'],
-                       recursive=config['recursive'])
+                       ftype=config['ftype'],recursive=config['recursive'])
     
+    stdout.info('Working on: '+str(len(infiles))+' files...')
+    log.info('\nWorking on: '+str(len(infiles))+' files...\n')    
+
     if config['AddCRS2Header']:
         stdout.info('Adding CRS to header of lidar files...')
         log.info('------------------------------------------------------')    
         log.info('Adding CRS to header of lidar files...')
         AddCRS2Header(infiles,config['log_dir'],config['pipeline'],
                       outdir=config['LAZDir_out'],
-                      recursive=config['recursive'],
                       out_suffix=config['fsuffix'],
                       overwrite=config['overwrite'])
 
@@ -1740,7 +1718,7 @@ def RunQAQC(config):
         log.info('LAZ files will be in:\n')
         log.info(config['getFilesDir'])
         Convert2LAZ(infiles,config['pipeline'],outdir=config['LAZDir_out'],
-                    recursive=config['recursive'],progress=1)
+                    progress=1)
         log.info('------------------------------------------------------\n')
 
     if config['CreatePDALInfo']:
@@ -2134,7 +2112,6 @@ def RunQAQC(config):
         Translate2Tiff(infiles,log,outdir=config['RasOutDir'],
                        xblock=config['ras_xBlock'],
                        yblock=config['ras_yBlock'],
-                       recursive=config['recursive'],
                        progress=0)
         stdout.info("PASS: Converted Raster(s) to TIFF(s)")
     #----------------------------------------------------------------------        
@@ -2147,7 +2124,7 @@ def RunQAQC(config):
         Warp2Tiff(infiles,log,config['warp_t_srs'],
                   outdir=config['RasOutDir'],xblock=config['ras_xBlock'],
                   yblock=config['ras_yBlock'],
-                  recursive=config['recursive'],progress=0)
+                  progress=0)
 
         stdout.info("PASS: Reprojected TIFFs")        
     #----------------------------------------------------------------------
