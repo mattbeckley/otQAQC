@@ -81,7 +81,8 @@
    This keyword is only used with the module, getFiles.  The default is set
    to 'f'.  The only time where setting it to 'd' will be used is when
    converting ESRI grid files, which are are set of files in a directory.
-   If you specify the directory name, GDAL will be able to convert it.
+   With ESRI grid files, if you specify the directory name, GDAL will be able 
+   to convert it.
 
 -  *LAS2LAZ*.  Set this to 1 if you want to convert LAS files to LAZ
    otherwise set to 0.
