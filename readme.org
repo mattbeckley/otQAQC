@@ -82,9 +82,10 @@
 -  getFilesDir.  Base directory from where file search will start.  If
    recursive is set it will start to drill down from this directory.
 
--  recursive.  Set this to 1 if the files to ingest are in a nested
+-  *recursive*.  Set this to 1 if the files to ingest are in a nested
    directory structure.  This is pretty rare.  Mostly all the las/laz
    files will be in single directory, so generally leave this set to 0.
+   This keyword only gets used in the module: getFiles.
 
 -  LAZDir_out.  Directory where LAZ files will be written when converted
    from LAS.
