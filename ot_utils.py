@@ -1077,15 +1077,15 @@ def checkLASVersion(json):
 
 
 #----------------------------------------------------------------------    
-def Convert2LAZ(files,pipeline,outdir='',progress=1):
-    #reads in a pipline and executes it.  technically the pipeline could
-    #be anything, but this one should just convert las to laz.
-
-
-    #check that pipeline exists:
-    fcheck = CheckFile(pipeline)
-    if fcheck is False:
-        FileWarning(pipeline)
+def Convert2LAZ(files,pipeline,outdir='',progress=1,method='LASTools',
+                wine_path='/Users/beckley/Documents/LAStools/bin'):
+    
+    #convert from las to laz using pdal OR lastools...
+    
+    method = method.lower()
+    if method not in ['lastools','pdal']:
+        print('FAIL: must set method to pdal or lastools')
+        ipdb.set_trace()
 
     #check that output directory exists...
     if len(outdir) > 1:
@@ -1106,27 +1106,47 @@ def Convert2LAZ(files,pipeline,outdir='',progress=1):
         elif suffix  == 'LAS':
             outfile = infile.replace('.LAS','.laz')           
 
-        #get basename
+        #get base filename
         outfile = os.path.basename(outfile)
 
         if len(outdir) > 1:
+            #write output to a different directory...
             outfile = os.path.join(outdir,outfile)
         else:
+            #write output to same as input...
             outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
         
         errorfile = os.path.join(outdir,'LAS2LAZ_errors.txt')
 
         if outfile:
-            #need double quotes for paths with spaces!
-            #Added "forward" to preserve header values, Otherwise PDAL
-            #updates them and I want to keep the file as close to
-            #original as possible.
-            cmd = ['pdal pipeline '+pipeline+
-                   ' --readers.las.filename=\"'+infile+
-                   '\" --writers.las.filename=\"'+outfile+
-                   '\" --writers.las.forward=\"header\" 2>> \"'+errorfile+'\"']
 
+            if method == 'pdal':
+                #check that pipeline exists:
+                fcheck = CheckFile(pipeline)
+                if fcheck is False:
+                    FileWarning(pipeline)
+
+                #need double quotes for paths with spaces!
+                #Added "forward" to preserve header values, Otherwise PDAL
+                #updates them and I want to keep the file as close to
+                #original as possible.
+                #Convert using PDAL...
+                cmd = ['pdal pipeline '+pipeline+
+                       ' --readers.las.filename=\"'+infile+
+                       '\" --writers.las.filename=\"'+outfile+
+                       '\" --writers.las.forward=\"header\" 2>> \"'+errorfile+'\"']
+
+            if method == 'lastools':
+                wineCheck = CheckDir(wine_path)
+                if wineCheck is False:
+                    DirWarning(wine_path)
+
+                #Convert using LASTools...
+                cmd = ['wine '+os.path.join(wine_path,'las2las.exe')
+                       +' -i '+infile+' -o '+outfile+' 2>/dev/null']
+
+                
             #needed the shell=True for this to work
             p = subprocess.run(cmd,shell=True,stderr=subprocess.PIPE)
 
@@ -1137,6 +1157,7 @@ def Convert2LAZ(files,pipeline,outdir='',progress=1):
                 cmd2 = ['echo "error with file:" \"'+infile+'\" >> \"'+errorfile+'\"']
                 p2 = subprocess.run(cmd2,shell=True,stderr=subprocess.PIPE)
 
+    
         if progress:        
             bar.next()
 
