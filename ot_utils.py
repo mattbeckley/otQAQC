@@ -73,8 +73,8 @@ def initializeNullConfig():
               'bounds_LTKML':'',
               'CheckRasMeta':0,
               'SetRasterCRS':0,
-              'Translate2Tiff':0,
               'a_srs':'',
+              'Translate2Tiff':0,
               'RasOutDir':'',
               'Warp2Tiff':0,
               'ras_xBlock':0,
@@ -549,7 +549,12 @@ def Warp2Tiff(files,log,t_srs,outdir='',xblock=128,yblock=128,
 
     if progress:
         bar = Bar('Transforming rasters to Geotiff', max=len(files))
- 
+
+    if not t_srs:
+        log.info('FAIL: Must set a target EPSG')
+        print('FAIL: Must set a target EPSG')
+        ipdb.set_trace()
+        
     for infile in files:
         
         #get basename
@@ -688,8 +693,13 @@ def CheckRasterInfo(infiles):
            out_struct['MissingCRS'] = 1
             
         out_struct['ActualCRS']   = rasInfo['projection']
-        out_struct['PixelRes_EW'] = rasInfo['PixelRes_EW']
-        out_struct['PixelRes_NS'] = rasInfo['PixelRes_NS']
+
+        #for Pixel res, want to avoid cases where the values are
+        #basically the same, but do to float or rounding issues may be
+        #technically different (e.g. 1.00005 vs 1.0000499999
+        out_struct['PixelRes_EW'] = round(rasInfo['PixelRes_EW'],1)
+        out_struct['PixelRes_NS'] = round(rasInfo['PixelRes_NS'],1)
+        
         out_struct['DataType']    = rasInfo['DataType']
         out_struct['ColorType']   = rasInfo['ColorType']        
 
@@ -708,8 +718,8 @@ def SetRasterCRS(infiles,log,a_srs):
     Date Created: 07/22/2019
 
     Input(s): list of raster files 
-    Notes:    Adding the header values in place, so no need to write to
-    a separate location.
+    Notes:    Adding the header values in place, so may want to add an
+    option to write to a separate location?
     """
 
     log.info('Adding CRS Info to Header...')        
@@ -1081,7 +1091,7 @@ def Convert2LAZ(files,pipeline,outdir='',progress=1,method='LASTools',
                 wine_path='/Users/beckley/Documents/LAStools/bin'):
     
     #convert from las to laz using pdal OR lastools...
-    
+
     method = method.lower()
     if method not in ['lastools','pdal']:
         print('FAIL: must set method to pdal or lastools')
@@ -1171,6 +1181,8 @@ def Convert2LAZ(files,pipeline,outdir='',progress=1,method='LASTools',
 def AddCRS2Header(files,log_dir,pipeline,outdir='',
                   out_suffix='_wCRS',overwrite=0,progress=1):
 
+    #Add CRS to lidar file header...
+    
     #test for a blank string as suffix.  if so, make one so that it
     #doesn't bomb if overwriting.  
     if not out_suffix.strip():
@@ -1737,7 +1749,12 @@ def RunQAQC(config):
         log.info('------------------------------------------------------')    
         log.info('Converting files from LAS to LAZ...')
         log.info('LAZ files will be in:\n')
-        log.info(config['getFilesDir'])
+
+        if len(config['LAZDir_out']) > 1:
+            log.info(config['LAZDir_out'])
+        else:
+            log.info('Same directory as input files')
+            
         Convert2LAZ(infiles,config['pipeline'],outdir=config['LAZDir_out'],
                     progress=1)
         log.info('------------------------------------------------------\n')
@@ -1772,6 +1789,10 @@ def RunQAQC(config):
     #Check if Horizontal or Vertical CRS is missing on any of the files...
     #----------------------------------------------------------------------    
     if config['MissingHCRS']:
+
+        if not config['ReadPDALLog']:
+            print("FAIL: You must set config['ReadPDALLog']=1")
+            
         CRS_check = CountCRS(json)
         
         htest = CRS_check.MissingHCRS.isin([1])
@@ -1798,6 +1819,9 @@ def RunQAQC(config):
         log.info('------------------------------------------------------\n')
         
     if config['MissingVCRS']:
+        if not config['ReadPDALLog']:
+            print("FAIL: You must set config['ReadPDALLog']=1")
+
         CRS_check = CountCRS(json)
         
         vtest = CRS_check.MissingVCRS.isin([1])
@@ -1829,6 +1853,10 @@ def RunQAQC(config):
         stdout.info('Checking if horizontal CRS is uniform...')
         log.info('------------------------------------------------------')    
         log.info('Checking if horizontal CRS is uniform...')
+
+        if not config['ReadPDALLog']:
+            print("FAIL: You must set config['ReadPDALLog']=1")
+
         HCRS_epsgs   = getHCRS_EPSG(json)          
         unique_epsgs = set(HCRS_epsgs.HCRS_EPSG)
         if len(unique_epsgs) > 1:
@@ -1848,6 +1876,10 @@ def RunQAQC(config):
         stdout.info('Checking if vertical CRS is uniform...')
         log.info('------------------------------------------------------')            
         log.info('Checking if vertical CRS is uniform...')
+
+        if not config['ReadPDALLog']:
+            print("FAIL: You must set config['ReadPDALLog']=1")
+
         VCRS_epsgs    = getVCRS_EPSG(json)          
         unique_Vepsgs = set(VCRS_epsgs.VCRS_EPSG)
         if len(unique_Vepsgs) > 1:
@@ -1868,6 +1900,9 @@ def RunQAQC(config):
     #Make sure the files are all in the same LAS version...
     #----------------------------------------------------------------------    
     if config['VersionCheck']:
+        if not config['ReadPDALLog']:
+            print("FAIL: You must set config['ReadPDALLog']=1")
+
         Version_check = checkLASVersion(json)
         NumVersions = len(Version_check.Version.unique())
         stdout.info('Checking the version of the las and if it is uniform...')
@@ -1889,6 +1924,10 @@ def RunQAQC(config):
         stdout.info('Checking if Point Type is uniform...')
         log.info('------------------------------------------------------')    
         log.info('Checking if Point Type is uniform...')
+
+        if not config['ReadPDALLog']:
+            print("FAIL: You must set config['ReadPDALLog']=1")
+
         pType        = getPointType(json)          
         unique_pType = set(pType.PointType)
         if len(unique_pType) > 1:
@@ -1910,6 +1949,10 @@ def RunQAQC(config):
         stdout.info('Checking if Global Encoding is uniform...')
         log.info('------------------------------------------------------')    
         log.info('Checking if Global Encoding is uniform...')
+
+        if not config['ReadPDALLog']:
+            print("FAIL: You must set config['ReadPDALLog']=1")
+
         GE        = getGlobalEncoding(json)          
         unique_GE = set(GE.GlobalEncoding)
         if len(unique_GE) > 1:
