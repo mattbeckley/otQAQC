@@ -492,7 +492,7 @@ def Translate2Tiff(files,log,outdir="",xblock=256,yblock=256,
     else:
         log.info("PASS: Converted Raster(s) to TIFF(s)")
     log.info('------------------------------------------------------\n')
-    
+
 #----------------------------------------------------------------------
     
 #----------------------------------------------------------------------
@@ -878,6 +878,7 @@ def CountCRS(json):
 
         if (len(VCRS_1) == 0):
             #print("Missing Vertical CRS Info: "+fname)
+            out_struct["filename"] = fname
             out_struct["MissingVCRS"] = 1
 
         output.append(out_struct)
@@ -979,7 +980,7 @@ def getVCRS_EPSG(json):
                 VCRS_vals.append(0)
                             
         if any(VCRS_vals) is False:
-            print("Missing Vertical CRS info: "+fname)
+            #print("Missing Vertical CRS info: "+fname)
             out_struct["VCRS_EPSG"] = 'None'
         else:
             #get the element that had a defined CRS string
@@ -1088,7 +1089,7 @@ def checkLASVersion(json):
 
 #----------------------------------------------------------------------    
 def Convert2LAZ(files,pipeline,outdir='',progress=1,method='LASTools',
-                wine_path='/Users/beckley/Documents/LAStools/bin'):
+                wine_path='/Applications/LASTools/bin'):
     
     #convert from las to laz using pdal OR lastools...
 
@@ -1154,7 +1155,7 @@ def Convert2LAZ(files,pipeline,outdir='',progress=1,method='LASTools',
 
                 #Convert using LASTools...
                 cmd = ['wine '+os.path.join(wine_path,'las2las.exe')
-                       +' -i '+infile+' -o '+outfile+' 2>/dev/null']
+                       +' -i \"'+infile+'\" -o \"'+outfile+'\" 2>/dev/null']
 
                 
             #needed the shell=True for this to work
@@ -1166,7 +1167,7 @@ def Convert2LAZ(files,pipeline,outdir='',progress=1,method='LASTools',
                 print("\nCHECK ERROR LOG:\n"+errorfile+"\n when completed")
                 cmd2 = ['echo "error with file:" \"'+infile+'\" >> \"'+errorfile+'\"']
                 p2 = subprocess.run(cmd2,shell=True,stderr=subprocess.PIPE)
-
+                ipdb.set_trace()
     
         if progress:        
             bar.next()
@@ -1712,8 +1713,8 @@ def RunQAQC(config):
     #always start a new log?  Check if one exists, and if so
     #delete it.
 
-    #if os.path.exists(config['ingestLog']):
-    #    os.remove(config['ingestLog'])
+    if os.path.exists(config['ingestLog']):
+        os.remove(config['ingestLog'])
 
     #open log
     log    = setup_logger('Log1', config['ingestLog'])
@@ -1745,7 +1746,7 @@ def RunQAQC(config):
         log.info('------------------------------------------------------\n')
     
     if config['LAS2LAZ']:
-        stdout.info('Converting files from LAS to LAZ...')
+        stdout.info('Converting files from LAS to LAZ...\n')
         log.info('------------------------------------------------------')    
         log.info('Converting files from LAS to LAZ...')
         log.info('LAZ files will be in:\n')
@@ -1756,7 +1757,7 @@ def RunQAQC(config):
             log.info('Same directory as input files')
             
         Convert2LAZ(infiles,config['pipeline'],outdir=config['LAZDir_out'],
-                    progress=1)
+                    method=config['LAS2LAZ_method'],progress=1)
         log.info('------------------------------------------------------\n')
 
     if config['CreatePDALInfo']:
@@ -1830,13 +1831,14 @@ def RunQAQC(config):
         log.info('Checking for missing vertical CRS...')
         
         if any(vtest):
-            sdtout.info("WARNING: Some (or ALL) of the files are missing Vertical CRS info")
+            stdout.info("WARNING: Some (or ALL) of the files are missing Vertical CRS info")
             log.info("WARNING: Some (or ALL) of the files are missing Vertical CRS info")
 
             fname = CRS_check[CRS_check.MissingVCRS == 1]['filename']
             fname_L = fname.to_list()
 
             log.info("The following files are missing Vertical CRS info:\n")
+            
             for f in fname_L:
                  log.info(f)
 

@@ -87,6 +87,15 @@
 -  *LAS2LAZ*.  Set this to 1 if you want to convert LAS files to LAZ
    otherwise set to 0.
 
+-  *LAS2LAZ_method*.  Set this to 'lastools' or 'pdal'.  With pdal, it
+   will read in a pipeline (the path to which you specify), and can do
+   multiple operations in one run.  So, you can convert to LAZ, and
+   reproject in one step.  But it is sometimes slower than LASTools.  With
+   LASTools, it will just convert to LAZ.  If your original LAS files do
+   not have CRS info, you will have to define them in a separate run, so it
+   is a two step process.  Consider adding another EPSG keyword to feed to
+   LAStools, but the config file is already confusing.
+  
 -  *getFilesWild*.  Regular expression to find all the files. you want to
    work on.  It's best to search by suffix: '.*\.laz$'
 
