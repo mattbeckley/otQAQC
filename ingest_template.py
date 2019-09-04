@@ -181,6 +181,7 @@ config6['Warp2Tiff'] = 1
 config6['ras_xBlock'] = 256
 config6['ras_yBlock'] = 256
 config6['warp_t_srs'] = '6339'
+config6['RasOutDir'] = '/path/to/output/rasters'
 
 #Run module to reproject rasters...
 #ot.RunQAQC(config6)

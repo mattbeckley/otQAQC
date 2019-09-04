@@ -440,7 +440,8 @@ def Translate2Tiff(files,log,outdir="",xblock=256,yblock=256,
 
     if progress:
         bar = Bar('Translating rasters to Geotiff', max=len(files))
- 
+
+    
     for infile in files:
         
         #get basename
