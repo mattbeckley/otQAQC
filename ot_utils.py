@@ -1836,7 +1836,7 @@ def RunQAQC(config):
             log.info("WARNING: Some (or ALL) of the files are missing Vertical CRS info")
 
             fname = CRS_check[CRS_check.MissingVCRS == 1]['filename']
-            fname_L = fname.to_list()
+            fname_L = fname.tolist()
 
             log.info("The following files are missing Vertical CRS info:\n")
             
