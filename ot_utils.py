@@ -41,6 +41,7 @@ def initializeNullConfig():
               'overwrite':0,
               'ftype':'f',
               'LAS2LAZ':0,
+              'LAS2LAZ_method':'',
               'getFilesWild':'',
               'getFilesDir': '',
               'recursive':0,
@@ -1273,12 +1274,12 @@ def CreateBounds(infiles,out_boundary,epsg,edge_size=50):
     cat_cmd = 'cat tmp.txt'
 
     if edge_size == 0:
-        cmd = [cat_cmd+'|pdal tindex create --tindex '+out_boundary
+        cmd = [cat_cmd+'|pdal tindex --tindex '+out_boundary
                +' --stdin'
                +' -f "ESRI Shapefile"'
                +' --t_srs \"EPSG:'+str(epsg)+'\"']
     else:
-        cmd = [cat_cmd+'|pdal tindex create --tindex '+out_boundary
+        cmd = [cat_cmd+'|pdal tindex --tindex '+out_boundary
            +' --stdin'
            +' -f "ESRI Shapefile"'
            +' --filters.hexbin.edge_size='+str(edge_size)
@@ -1842,7 +1843,7 @@ def RunQAQC(config):
             log.info("WARNING: Some (or ALL) of the files are missing Vertical CRS info")
 
             fname = CRS_check[CRS_check.MissingVCRS == 1]['filename']
-            fname_L = fname.tolist()
+            fname_L = fname.to_list()
 
             log.info("The following files are missing Vertical CRS info:\n")
             
