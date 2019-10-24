@@ -25,7 +25,7 @@ gdal.UseExceptions()
    Keyword(s):
    Update(s):
    Notes:
-
+   #Test to see if git push is working....
 
 """
 
@@ -389,7 +389,7 @@ def CheckShape(infile):
     return fcheck
 #----------------------------------------------------------------------
 
-def Translate2Tiff(files,log,outdir="",xblock=256,yblock=256,
+def Translate2Tiff(files,log,outdir_1="",xblock=256,yblock=256,
                    progress=0):
 
     """
@@ -406,7 +406,7 @@ def Translate2Tiff(files,log,outdir="",xblock=256,yblock=256,
     that these files can be in different directories.
     
     Output(s):  
-    1.  Output will be written to the outdir.  Otherwise, the tiff for
+    1.  Output will be written to the outdir_1.  Otherwise, the tiff for
     each file in the list will be written to the same directory as the
     path of the inputfile in the list.
 
@@ -433,13 +433,14 @@ def Translate2Tiff(files,log,outdir="",xblock=256,yblock=256,
     log.info('------------------------------------------------------')                
 
     #check that output directory exists...
-    if len(outdir) > 1:
-        dirCheck = CheckDir(outdir)    
+    if len(outdir_1) > 1:
+        dirCheck = CheckDir(outdir_1)    
         if dirCheck is False:
-            DirWarning(outdir)
+            DirWarning(outdir_1)
 
     if progress:
         bar = Bar('Translating rasters to Geotiff', max=len(files))
+
 
     
     for infile in files:
@@ -452,14 +453,18 @@ def Translate2Tiff(files,log,outdir="",xblock=256,yblock=256,
 
         #default is to write in same directory as input file.  If you
         #want output to another directory, you must set one.
-        if len(outdir) > 1:
-            outfile = os.path.join(outdir,outfile)
+        if len(outdir_1) > 1:
+            outfile = os.path.join(outdir_1,outfile)
+            errorfile = os.path.join(outdir_1,'Translate2Tiff_errors.txt')
         else:
             outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
-           
-        
-        errorfile = os.path.join(outdir,'Translate2Tiff_errors.txt')
+            errorfile = os.path.join(outdir,'Translate2Tiff_errors.txt')
+
+        print(infile)            
+        print(outdir)
+        print(outfile)
+        print(outbase)
 
         errors = []
         if outfile:
@@ -497,7 +502,7 @@ def Translate2Tiff(files,log,outdir="",xblock=256,yblock=256,
 #----------------------------------------------------------------------
     
 #----------------------------------------------------------------------
-def Warp2Tiff(files,log,t_srs,outdir='',xblock=128,yblock=128,
+def Warp2Tiff(files,log,t_srs,outdir_1='',xblock=128,yblock=128,
               progress=0):
     """
     Description:  This module will "transform" a tif using
@@ -543,10 +548,10 @@ def Warp2Tiff(files,log,t_srs,outdir='',xblock=128,yblock=128,
     log.info('------------------------------------------------------')            
 
     #check that output directory exists...
-    if len(outdir) > 1:
-        dirCheck = CheckDir(outdir)    
+    if len(outdir_1) > 1:
+        dirCheck = CheckDir(outdir_1)    
         if dirCheck is False:
-            DirWarning(outdir)
+            DirWarning(outdir_1)
 
     if progress:
         bar = Bar('Transforming rasters to Geotiff', max=len(files))
@@ -561,18 +566,19 @@ def Warp2Tiff(files,log,t_srs,outdir='',xblock=128,yblock=128,
         #get basename
         outbase = os.path.basename(infile)
 
-        if len(outdir) > 1:
+        if len(outdir_1) > 1:
             #strip out suffix and add tiff suffix.
             outfile = outbase.split(".")[0]+".tif"             
-            outfile = os.path.join(outdir,outfile)
+            outfile = os.path.join(outdir_1,outfile)
+            errorfile = os.path.join(outdir_1,'Transform2Tiff_errors.txt')
         else:
             #in GDAL, you cannot overwrite input file, so need to
             #output a new file with EPSG as suffix
             outfile = outbase.split(".")[0]+"_EPSG"+str(t_srs)+".tif" 
             outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
-            
-        errorfile = os.path.join(outdir,'Transform2Tiff_errors.txt')
+            errorfile = os.path.join(outdir,'Transform2Tiff_errors.txt')            
+
 
         errors = []
         if outfile:
@@ -1089,7 +1095,7 @@ def checkLASVersion(json):
 
 
 #----------------------------------------------------------------------    
-def Convert2LAZ(files,pipeline,outdir='',progress=1,method='LASTools',
+def Convert2LAZ(files,pipeline,outdir='',progress=1,method='pdal',
                 wine_path='/Applications/LASTools/bin'):
     
     #convert from las to laz using pdal OR lastools...
@@ -2079,7 +2085,7 @@ def RunQAQC(config):
             for val in unique_WKT:
                 log.info(str(val))
 
-            ipdb.set_trace()
+            #ipdb.set_trace()
         else:
             stdout.info("PASS: All files in same CRS: \n"+str(unique_WKT))            
             log.info("PASS: All files in same CRS: \n"+str(unique_WKT))
@@ -2176,7 +2182,7 @@ def RunQAQC(config):
     if config['Translate2Tiff']:
         stdout.info('Convert Raster to TIFF Format...')
 
-        Translate2Tiff(infiles,log,outdir=config['RasOutDir'],
+        Translate2Tiff(infiles,log,outdir_1=config['RasOutDir'],
                        xblock=config['ras_xBlock'],
                        yblock=config['ras_yBlock'],
                        progress=0)
@@ -2189,7 +2195,7 @@ def RunQAQC(config):
         stdout.info('Reprojecting TIFFs...')
 
         Warp2Tiff(infiles,log,config['warp_t_srs'],
-                  outdir=config['RasOutDir'],xblock=config['ras_xBlock'],
+                  outdir_1=config['RasOutDir'],xblock=config['ras_xBlock'],
                   yblock=config['ras_yBlock'],
                   progress=0)
 
