@@ -26,7 +26,7 @@ gdal.UseExceptions()
    Update(s):
    Notes:
    #Test to see if git push is working....
-   #need another test here.
+
 """
 
 __author__      = "Matthew Beckley"
@@ -41,7 +41,6 @@ def initializeNullConfig():
               'overwrite':0,
               'ftype':'f',
               'LAS2LAZ':0,
-              'LAS2LAZ_method':'',
               'getFilesWild':'',
               'getFilesDir': '',
               'recursive':0,
@@ -461,11 +460,6 @@ def Translate2Tiff(files,log,outdir_1="",xblock=256,yblock=256,
             outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
             errorfile = os.path.join(outdir,'Translate2Tiff_errors.txt')
-
-        print(infile)            
-        print(outdir)
-        print(outfile)
-        print(outbase)
 
         errors = []
         if outfile:
@@ -1843,7 +1837,7 @@ def RunQAQC(config):
             log.info("WARNING: Some (or ALL) of the files are missing Vertical CRS info")
 
             fname = CRS_check[CRS_check.MissingVCRS == 1]['filename']
-            fname_L = fname.to_list()
+            fname_L = fname.tolist()
 
             log.info("The following files are missing Vertical CRS info:\n")
             
