@@ -21,88 +21,90 @@ scripts_dir  = os.path.join(ingestBase,'scripts')
 #----------------------------------------------------------------------
 
 
+#Config file for Converting LAS files to LAZ
+#----------------------------------------------------------------------
+#module to initialize the config file to all null values.
+config1 = ot.initializeNullConfig()
+
+config1['log_dir']        = log_dir
+config1['ingestLog']      = os.path.join(log_dir,shortname+'_LAS2LAZ_QAQCLog.txt')
+config1['LAS2LAZ']        = 1
+config1['LAS2LAZ_method'] = 'pdal'
+config1['getFilesWild']   = '.*\.las$'
+config1['getFilesDir']    = '/Volumes/New Volume/ToOT_HD35/2018_13_265_Feehan/_Deliverables/PCTiles'
+config1['ftype']          = 'f'
+config1['recursive']      = 0
+config1['LAZDir_out']     = '/volumes/OT6TB/CA18_Feehan/LAZ'
+config1['pipeline']       = os.path.join(scripts_dir,'pipeline.json')
+
+#Run Module to Convert LAS2LAS...
+#ot.RunQAQC(config1)
+#----------------------------------------------------------------------
+
 #Config file for initial check of LAS files....
 #----------------------------------------------------------------------
 #module to initialize the config file to all null values
-config1 = ot.initializeNullConfig()
+config2 = ot.initializeNullConfig()
 
-config1['log_dir'] = log_dir
-config1['ingestLog'] = os.path.join(log_dir,shortname+'_initialCheck_QAQCLog.txt')
-config1['recursive'] = 0
-config1['getFilesDir'] =  '/volumes/OT6TB/CA17_Dietrich/2017_LAS_Tiles'
-config1['getFilesWild'] = '.*\.las$'
-config1['ftype'] = 'f'
-config1['CreatePDALInfo'] = 1
-config1['PDALInfoFile'] = shortname+'_PDALInfoLog_initial.txt'
-config1['ReadPDALLog'] = 1
-config1['CheckLAZCount'] = 1
-config1['MissingHCRS'] = 1
-config1['MissingVCRS'] = 1
-config1['HCRS_Uniform'] = 1
-config1['VCRS_Uniform'] = 1
-config1['VersionCheck'] = 1
-config1['PointTypeCheck'] = 1
-config1['GlobalEncodingCheck'] = 1
-config1['CreatePDALBoundary'] = 0
-config1['bounds_PDAL'] = os.path.join(bounds_base,'PDAL_Jul12.shp')
-config1['BufferSize'] = 1
-config1['epsg'] = 6339
-config1['bounds_PDALmerge'] = os.path.join(bounds_base,'PDALMerged_Jul12.shp')
-config1['bounds_PDALmergeArea'] = os.path.join(bounds_base,'PDALMergedwArea_Jul12.shp')
-config1['bounds_PDALKML'] = os.path.join(bounds_base,'PDALMergedwArea_Jul12.kml')
-config1['winePath'] = '/Applications/LASTools/bin'
-config1['CreateLASBoundary'] = 0
-config1['bounds_LT'] = os.path.join(bounds_base,'LTBounds_Jul12.shp')
-config1['randFrac'] = 0.25
-config1['concavity'] = 100
-config1['bounds_LTArea'] = os.path.join(bounds_base,'LTBoundswArea_Jul12.shp')
-config1['bounds_LTKML'] = os.path.join(bounds_base,'LTBoundswArea_Jul12.kml')
+config2['log_dir'] = log_dir
+config2['ingestLog'] = os.path.join(log_dir,shortname+'_initialCheck_QAQCLog.txt')
+config2['recursive'] = 0
+config2['getFilesDir'] =  '/volumes/OT6TB/CA17_Dietrich/2017_LAS_Tiles'
+config2['getFilesWild'] = '.*\.las$'
+config2['ftype'] = 'f'
+config2['CreatePDALInfo'] = 1
+config2['PDALInfoFile'] = shortname+'_PDALInfoLog_initial.txt'
+config2['ReadPDALLog'] = 1
+config2['CheckLAZCount'] = 1
+config2['MissingHCRS'] = 1
+config2['MissingVCRS'] = 1
+config2['HCRS_Uniform'] = 1
+config2['VCRS_Uniform'] = 1
+config2['VersionCheck'] = 1
+config2['PointTypeCheck'] = 1
+config2['GlobalEncodingCheck'] = 1
+config2['CreatePDALBoundary'] = 1
+config2['bounds_PDAL'] = os.path.join(bounds_base,'PDAL.shp')
+config2['BufferSize'] = 1
+config2['epsg'] = 6339
+config2['bounds_PDALmerge'] = os.path.join(bounds_base,'PDALMerged.shp')
+config2['bounds_PDALmergeArea'] = os.path.join(bounds_base,'PDALMergedwArea.shp')
+config2['bounds_PDALKML'] = os.path.join(bounds_base,'PDALMergedwArea.kml')
+config2['winePath'] = '/Applications/LASTools/bin'
+config2['CreateLASBoundary'] = 1
+config2['bounds_LT'] = os.path.join(bounds_base,'LTBounds.shp')
+config2['randFrac'] = 0.25
+config2['concavity'] = 100
+config2['bounds_LTArea'] = os.path.join(bounds_base,'LTBoundswArea.shp')
+config2['bounds_LTKML'] = os.path.join(bounds_base,'LTBoundswArea.kml')
 
 #Run Module to do initial check of LAS files.
-#ot.RunQAQC(config1)
+#ot.RunQAQC(config2)
 #----------------------------------------------------------------------
 
 
 #Config file for adding CRS to files...
 #----------------------------------------------------------------------
 #module to initialize the config file to all null values.
-config2 = ot.initializeNullConfig()
-
-config2['log_dir']      = log_dir
-config2['ingestLog']    = os.path.join(log_dir,shortname+'_ADDCRS_QAQCLog.txt')
-config2['AddCRS2Header']= 1
-config2['getFilesWild'] = '.*\.las$'
-config2['getFilesDir']  = '/volumes/OT6TB/CA17_Dietrich/2017_LAS_Tiles'
-config2['ftype']        = 'f'
-config2['recursive']    = 0
-config2['fsuffix']      = '_EPSG6339'
-config2['overwrite']    = 0
-config2['LAZDir_out']   = '/volumes/OT6TB/CA17_Dietrich/LAZ'
-config2['pipeline']     = os.path.join(scripts_dir,'pipeline.json')
-
-#Run Module to add CRS to lidar files (LAS or LAZ)
-#ot.RunQAQC(config2)
-#----------------------------------------------------------------------
-
-
-#Config file for Converting LAS files to LAZ
-#----------------------------------------------------------------------
-#module to initialize the config file to all null values.
 config3 = ot.initializeNullConfig()
 
 config3['log_dir']      = log_dir
-config3['ingestLog']    = os.path.join(log_dir,shortname+'_LAS2LAZ_QAQCLog.txt')
-config3['LAS2LAZ']      = 1
+config3['ingestLog']    = os.path.join(log_dir,shortname+'_ADDCRS_QAQCLog.txt')
+config3['AddCRS2Header']= 1
 config3['getFilesWild'] = '.*\.las$'
-config3['getFilesDir']  = '/Volumes/New Volume/toOT_HD34/2018_09_Wall_Seed_12August2019/_Deliverables/PointClouds'
+config3['getFilesDir']  = '/volumes/OT6TB/CA17_Dietrich/2017_LAS_Tiles'
 config3['ftype']        = 'f'
 config3['recursive']    = 0
-config3['LAZDir_out']   = '/volumes/OT6TB/WALL_TEST/LAZ'
+config3['fsuffix']      = '_EPSG6339'
+config3['overwrite']    = 0
+config3['LAZDir_out']   = '/volumes/OT6TB/CA17_Dietrich/LAZ'
 config3['pipeline']     = os.path.join(scripts_dir,'pipeline.json')
+config3['LAS2LAZ_method'] = 'pdal'
 
-#Run Module to Convert LAS2LAS...
+#Run Module to add CRS to lidar files (LAS or LAZ)
 #ot.RunQAQC(config3)
 #----------------------------------------------------------------------
+
 
 
 #Config file for QA/QC of LAZ and Create Boundaries
@@ -182,6 +184,26 @@ config6['ras_xBlock'] = 256
 config6['ras_yBlock'] = 256
 config6['warp_t_srs'] = '6339'
 config6['RasOutDir'] = '/path/to/output/rasters'
+
+#Run module to reproject rasters...
+#ot.RunQAQC(config6)
+#----------------------------------------------------------------------
+
+#Config file for ONLY converting to tiffs.
+#----------------------------------------------------------------------
+##module to initialize the config file to all null values
+config6 = ot.initializeNullConfig()
+
+config6['log_dir'] = log_dir
+config6['ingestLog'] = os.path.join(log_dir,shortname+'_FLT2TIF_QAQCLog.txt')
+config6['getFilesDir'] =  '/Volumes/New Volume/ToOT_HD35/2018_13_265_Feehan/_Deliverables/Rasters'
+config6['getFilesWild'] = '.*\.flt$'
+config6['ftype']     = 'f'
+config6['recursive'] = 1
+config6['Translate2Tiff'] = 1
+config6['ras_xBlock'] = 256
+config6['ras_yBlock'] = 256
+config6['RasOutDir'] = '/volumes/OT6TB/CA18_Feehan/Rasters'
 
 #Run module to reproject rasters...
 #ot.RunQAQC(config6)
