@@ -40,6 +40,7 @@
 - [ ] Rasters contain CRS info?
 - [ ] Rasters all in same CRS?
 - [ ] Rasters in same data type 
+- [ ] if Orthos present, tile and compress to reduce size
 - [ ] Is DSM > DEM?
 - [ ] Can VRT be built?
 - [ ] Does Raster boundary match lidar boundary?  Are there gaps
