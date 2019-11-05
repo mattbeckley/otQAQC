@@ -159,6 +159,11 @@
 -  *GlobalEncodingCheck*.  Set this to 1 if you want to check that all the
    LAS/LAZ files have the same 'Global Encoding' value.
 
+-  *PointCountCheck*.  Set this to 1 if you want to check to make sure
+   that all the lidar files have points.  If this module finds any points
+   that have a point count of 0, it will issue a warning, but will not stop
+   execution of the code.
+
 -  *CreatePDALBoundary*.  Set this to 1 if you want to create a boundary
    of the datasets using PDAL.  PDAL uses a different method than
    LASTools, and there are several steps involved.  It is *MUCH* slower,

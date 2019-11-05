@@ -57,6 +57,7 @@ def initializeNullConfig():
               'VersionCheck':0,
               'PointTypeCheck':0,
               'GlobalEncodingCheck':0,
+              'PointCountCheck':0,
               'CreatePDALBoundary':0,
               'bounds_PDAL':'',
               'BufferSize':0,
@@ -754,6 +755,7 @@ def SetRasterCRS(infiles,log,a_srs):
 
 #----------------------------------------------------------------------
 
+    
 #----------------------------------------------------------------------
 def LAZCount(indir):
     #report if the files are in laz or not.  output could be:
@@ -1058,6 +1060,38 @@ def getPointType(json):
 
     return out_pandas
 #----------------------------------------------------------------------
+
+#----------------------------------------------------------------------    
+def getPointCount(json):
+    """
+    Make sure the file has points.  If it is just a header, sometimes
+    this will mess things up.  Want to warn if there are empty files.  
+
+    Input:  
+    1.  PDAL metadata output in JSON of all the files
+
+    """
+
+    output  = []    
+    for d in json:
+        #reset record to blank each time
+        out_struct   = {"filename":'',"PointCount":0}
+
+        fname    = d['filename']
+        out_struct["filename"] = fname
+
+        metadata = d['metadata']
+        ptCount  = metadata['count']
+
+        out_struct['PointCount'] = ptCount
+
+        output.append(out_struct)
+
+    
+    out_pandas = pd.DataFrame(output)
+
+    return out_pandas    
+#----------------------------------------------------------------------    
 
 
 #----------------------------------------------------------------------    
@@ -1727,15 +1761,19 @@ def RunQAQC(config):
     stdout = setup_logger('Log2', '', stdout=1) 
     #------------------------------------------------------------
 
-    #This is the list of files that you will work on.  To do multiple
-    #operations, you will need to run RunIngest multiple times with
-    #different configs.
-    infiles = getFiles(config['getFilesDir'],wild=config['getFilesWild'],
-                       ftype=config['ftype'],recursive=config['recursive'])
-    
-    stdout.info('Working on: '+str(len(infiles))+' files...')
-    log.info('\nWorking on: '+str(len(infiles))+' files...\n')    
+    #There could be a case where you just want to read an existing PDAL
+    #log file, and not have to find files?
+    if config['getFilesDir']:
+        #This is the list of files that you will work on.  To do multiple
+        #operations, you will need to run RunIngest multiple times with
+        #different configs.
+        infiles = getFiles(config['getFilesDir'],wild=config['getFilesWild'],
+                           ftype=config['ftype'],recursive=config['recursive'])
 
+        stdout.info('Working on: '+str(len(infiles))+' files...')
+        log.info('\nWorking on: '+str(len(infiles))+' files...\n')    
+
+        
     if config['AddCRS2Header']:
         stdout.info('Adding CRS to header of lidar files...')
         log.info('------------------------------------------------------')    
@@ -1972,6 +2010,33 @@ def RunQAQC(config):
         log.info('------------------------------------------------------\n')        
     #----------------------------------------------------------------------    
 
+    #Check if any of the files have a point count of 0
+    #----------------------------------------------------------------------
+    if config['PointCountCheck']:
+        stdout.info('Checking if Point Count is 0')
+        log.info('------------------------------------------------------')    
+        log.info('Checking if Point Count is 0')
+
+        if not config['ReadPDALLog']:
+            print("FAIL: You must set config['ReadPDALLog']=1")
+
+        ptCount_str = getPointCount(json)          
+        zero_vals = ptCount_str[ptCount_str['PointCount'] == 0] 
+
+        if len(zero_vals) > 1:
+            log.info('WARNING: Some files are empty')
+            log.info('There are '+str(len(zero_vals))+' empty files')
+            log.info('Following files are empty: ')
+            for fname in zero_vals['filename']:
+                log.info(fname)
+                ipdb.set_trace()
+        else:
+            stdout.info("PASS: No empty files")
+            log.info("PASS: No empty files")
+
+        log.info('------------------------------------------------------\n')        
+    #----------------------------------------------------------------------    
+        
     #Create Boundary via PDAL
     #----------------------------------------------------------------------
     if config['CreatePDALBoundary']:

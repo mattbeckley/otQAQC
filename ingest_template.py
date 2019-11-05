@@ -63,6 +63,7 @@ config2['VCRS_Uniform'] = 1
 config2['VersionCheck'] = 1
 config2['PointTypeCheck'] = 1
 config2['GlobalEncodingCheck'] = 1
+config2['PointCountCheck'] = 1
 config2['CreatePDALBoundary'] = 1
 config2['bounds_PDAL'] = os.path.join(bounds_base,'PDAL.shp')
 config2['BufferSize'] = 1

@@ -29,6 +29,7 @@
 * Tasks
 - [ ] PDAL logs created
 - [ ] LAZ files exist?
+- [ ] Are there any empty files?
 - [ ] QA/QC on CRS and version of LAZ files - is it uniform?
 - [ ] plot georeferenced LAZ to verify that the CRS in metadata is
       actually what the data is in (i.e. don't trust metadata?)
