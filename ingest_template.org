@@ -90,5 +90,18 @@
 -  [ ] Check that las and laz contain proper CRS info
 -  [ ] Check that OT rasters contain CRS and plot in a GIS
 
-
 * Prod testing
+-  [ ] check all links
+-  [ ] download and check boundary kml
+-  [ ] check DOI
+-  [ ] download and check metadata
+-  [ ] Check LAS Validation report
+-  [ ] Check Citation
+-  [ ] Check that las and laz contain proper CRS info
+-  [ ] Check that OT rasters contain CRS and plot in a GIS
+-  [ ] Add PIs to list of private users
+-  [ ] Add dataset to PI DataProvider List for metrics.
+-  [ ] Make sure Minh: Copies to SDSC Cloud for bulk downloads
+-  [ ] Make sure Minh: Updates KML for “Find Data” Map
+-  [ ] Make sure Minh: Inserts record to GeoPortal
+-  [ ] Update Excel spreadsheet.
