@@ -715,7 +715,7 @@ def CheckRasterInfo(infiles):
 #----------------------------------------------------------------------
 
 #----------------------------------------------------------------------
-def SetRasterCRS(infiles,log,a_srs):
+def SetRasterCRS(infiles,log,a_srs,progress=0):
     """
     Description:  Set the CRS info in the header of raster files.
     Date Created: 07/22/2019
@@ -728,6 +728,10 @@ def SetRasterCRS(infiles,log,a_srs):
     log.info('Adding CRS Info to Header...')        
     log.info('------------------------------------------------------')            
 
+    if progress:
+        bar = Bar('Transforming rasters to Geotiff', max=len(infiles))
+    
+    
     for f in infiles:
         fcheck = CheckFile(f)
         if fcheck is False:
@@ -745,7 +749,14 @@ def SetRasterCRS(infiles,log,a_srs):
             print("WARNING: Problem with Adding CRS to header for file:\n"+f)            
             log.info("WARNING: Problem with Adding CRS to header for file:\n"+f)
             errors.append(1)
-                 
+
+
+        if progress:
+            bar.next()
+
+    if progress:
+        bar.finish()
+
     if any(errors):
         log.info("WARNING: Problem Adding CRS info to some Raster(s)")
     else:
@@ -2232,7 +2243,7 @@ def RunQAQC(config):
     #----------------------------------------------------------------------
     if config['SetRasterCRS']:
         stdout.info('Adding CRS Info to Raster...')        
-        SetRasterCRS(infiles,log,config['a_srs'])
+        SetRasterCRS(infiles,log,config['a_srs'],progress=1)
 
         stdout.info('PASS: Added CRS Info to Raster...')        
     #----------------------------------------------------------------------
