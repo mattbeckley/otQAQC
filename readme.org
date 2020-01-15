@@ -12,10 +12,10 @@
 -  Clone this repo:  git clone https://www.unavco.org/gitlab/beckley/otQAQC.git
 -  Rename cloned directory to OT shortname (mv otQAQC/ new_shortname)
 -  cd into newly renamed directory
--  run the main level code in python3, and specify your working
-   directory as the first argument:
+-  run the main level code in python (needs to be python 3), 
+   and specify your working directory as the first argument:
 
-   python3 ot_utils.py $PWD
+   python ot_utils.py $PWD
 
    This will set up the directory structure with all the necessary
    template files.
