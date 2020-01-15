@@ -1313,12 +1313,12 @@ def CreateBounds(infiles,out_boundary,epsg,edge_size=50):
     cat_cmd = 'cat tmp.txt'
 
     if edge_size == 0:
-        cmd = [cat_cmd+'|pdal tindex --tindex '+out_boundary
+        cmd = [cat_cmd+'|pdal tindex create '+out_boundary
                +' --stdin'
                +' -f "ESRI Shapefile"'
                +' --t_srs \"EPSG:'+str(epsg)+'\"']
     else:
-        cmd = [cat_cmd+'|pdal tindex --tindex '+out_boundary
+        cmd = [cat_cmd+'|pdal tindex create '+out_boundary
            +' --stdin'
            +' -f "ESRI Shapefile"'
            +' --filters.hexbin.edge_size='+str(edge_size)
