@@ -124,10 +124,21 @@ def LogHeader(log,indir):
 def initDirs(dirBase,readme_template,
              ingest_template='ingest_template.py',
              pipeline_template='pipeline.json'):
-
-    #routine to set up a standard set of directories that I will use for
-    #every project
+    """"
+    routine to set up a standard set of directories that I will use for
+    every project
+    """
     
+    if len(sys.argv) <= 1:
+        print("Need to specify the directory to copy files to.")
+        sys.exit()
+    else:
+        dirBase = sys.argv[1]
+        readme_template   = os.path.join(dirBase,'ingest_template.org')
+        ingest_template   = os.path.join(dirBase,'ingest_template.py')
+        pipeline_template = os.path.join(dirBase,'pipeline.json')
+
+
     #check if base exists
     dirCheck = CheckDir(dirBase)    
     if dirCheck is False:
@@ -2305,19 +2316,9 @@ if __name__ == "__main__":
 
     #This will copy over all the necessary files and directories you
     #need for doing the ingest.
-    
-    if len(sys.argv) < 1:
-        print("Need to specify the directory to copy files to.")
-        sys.exit()
-    else:
-        dirBase = sys.argv[1]
-        template = os.path.join(dirBase,'ingest_template.org')
-        ingest_template   = os.path.join(dirBase,'ingest_template.py')
-        pipeline_template = os.path.join(dirBase,'pipeline.json')
 
-    #This will copy all the templates and set up the directory structure.
-    initDirs(dirBase,template,ingest_template=ingest_template,
-             pipeline_template=pipeline_template)
+    #set up directories
+    initDirs()
 
 
  
