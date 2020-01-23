@@ -121,14 +121,12 @@ def LogHeader(log,indir):
 #----------------------------------------------------------------------
 
 #--------------------------------------------------
-def initDirs(dirBase,readme_template,
-             ingest_template='ingest_template.py',
-             pipeline_template='pipeline.json'):
+def initDirs():
     """"
     routine to set up a standard set of directories that I will use for
     every project
     """
-    
+
     if len(sys.argv) <= 1:
         print("Need to specify the directory to copy files to.")
         sys.exit()
