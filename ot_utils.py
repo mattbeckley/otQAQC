@@ -6,7 +6,6 @@ import pandas as pd
 from datetime import datetime
 from osgeo import gdal,osr
 from subprocess import Popen, PIPE
-from progress.bar import Bar
 from shutil import copyfile,move
 
 # this allows GDAL to throw Python Exceptions
@@ -30,6 +29,31 @@ gdal.UseExceptions()
 """
 
 __author__      = "Matthew Beckley"
+
+#----------------------------------------------------------------------
+def printProgressBar (iteration, total, prefix = '', suffix = '',
+                      decimals = 1, length = 100,
+                      fill = '█', printEnd = "\r"):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = printEnd)
+    # Print New Line on Complete
+    if iteration == total: 
+        print()
+#----------------------------------------------------------------------
 
 #----------------------------------------------------------------------
 def initializeNullConfig():
@@ -226,8 +250,9 @@ def CreatePDALInfo(files,outdir,outfile,errors='errors.txt',progress=1):
     p1   = subprocess.run(cmd1,shell=True)
 
     if progress:
-        bar = Bar('Creating PDAL Log', max=len(files)) 
-    for f in files:
+        printProgressBar(0, len(files), prefix = 'Create PDAL Log:', suffix = 'Complete', length = 50)        
+
+    for i,f in enumerate(files):
 
         cmd2 = ['pdal info \"'+f+'\" --metadata >> '+out_fpath]
         
@@ -248,7 +273,7 @@ def CreatePDALInfo(files,outdir,outfile,errors='errors.txt',progress=1):
         p4 = subprocess.run(cmd4,shell=True,stderr=subprocess.PIPE)
 
         if progress:
-            bar.next()
+            printProgressBar(i+1, len(files), prefix = 'Create PDAL Log:', suffix = 'Complete', length = 50)
 
     #remove final comma from file...
     cmd5 = ['sed -i \'\' -e \'$ d \' '+out_fpath]
@@ -258,8 +283,6 @@ def CreatePDALInfo(files,outdir,outfile,errors='errors.txt',progress=1):
     cmd6 = ['echo ] >> '+out_fpath]
     p6 = subprocess.run(cmd6,shell=True)
 
-    if progress:    
-        bar.finish()
 #-----------------------------------------------------------------
 
 
@@ -391,7 +414,7 @@ def CheckShape(infile):
 #----------------------------------------------------------------------
 
 def Translate2Tiff(files,log,outdir_1="",xblock=256,yblock=256,
-                   progress=0):
+                   progress=1):
 
     """
     Description:  This module will "translate" a tif using
@@ -440,11 +463,9 @@ def Translate2Tiff(files,log,outdir_1="",xblock=256,yblock=256,
             DirWarning(outdir_1)
 
     if progress:
-        bar = Bar('Translating rasters to Geotiff', max=len(files))
-
-
+        printProgressBar(0, len(files), prefix = 'Translate Rasters:', suffix = 'Complete', length = 50)
     
-    for infile in files:
+    for i,infile in enumerate(files):
         
         #get basename
         outbase = os.path.basename(infile)
@@ -483,11 +504,8 @@ def Translate2Tiff(files,log,outdir_1="",xblock=256,yblock=256,
                 errors.append(1)
                 
         if progress:
-            bar.next()
+            printProgressBar(i+1, len(files), prefix = 'Translate Rasters:', suffix = 'Complete', length = 50)
     
-    if progress:
-        bar.finish()
-
     if any(errors):
         log.info("FAIL: Problem Converting Raster(s) to TIFF(s)")
         log.info("CHECK ERROR LOG:\n"+errorfile+"\n")
@@ -499,7 +517,7 @@ def Translate2Tiff(files,log,outdir_1="",xblock=256,yblock=256,
     
 #----------------------------------------------------------------------
 def Warp2Tiff(files,log,t_srs,outdir_1='',xblock=128,yblock=128,
-              progress=0):
+              progress=1):
     """
     Description:  This module will "transform" a tif using
     gdalwarp.  Use this module if you want to actually do a reprojection
@@ -550,14 +568,14 @@ def Warp2Tiff(files,log,t_srs,outdir_1='',xblock=128,yblock=128,
             DirWarning(outdir_1)
 
     if progress:
-        bar = Bar('Transforming rasters to Geotiff', max=len(files))
+        printProgressBar(0, len(files), prefix = 'Transform Rasters:', suffix = 'Complete', length = 50)
 
     if not t_srs:
         log.info('FAIL: Must set a target EPSG')
         print('FAIL: Must set a target EPSG')
         ipdb.set_trace()
         
-    for infile in files:
+    for i,infile in enumerate(files):
         
         #get basename
         outbase = os.path.basename(infile)
@@ -597,10 +615,7 @@ def Warp2Tiff(files,log,t_srs,outdir_1='',xblock=128,yblock=128,
                 errors.append(1)
                  
         if progress:
-            bar.next()
-
-    if progress:
-        bar.finish()
+            printProgressBar(i+1, len(files), prefix = 'Transform Rasters:', suffix = 'Complete', length = 50)
 
     if any(errors):
         log.info("FAIL: Problem Projecting Raster(s)")
@@ -715,7 +730,7 @@ def CheckRasterInfo(infiles):
 #----------------------------------------------------------------------
 
 #----------------------------------------------------------------------
-def SetRasterCRS(infiles,log,a_srs,progress=0):
+def SetRasterCRS(infiles,log,a_srs,progress=1):
     """
     Description:  Set the CRS info in the header of raster files.
     Date Created: 07/22/2019
@@ -729,10 +744,9 @@ def SetRasterCRS(infiles,log,a_srs,progress=0):
     log.info('------------------------------------------------------')            
 
     if progress:
-        bar = Bar('Transforming rasters to Geotiff', max=len(infiles))
+        printProgressBar(0, len(files), prefix = 'Add CRS to Rasters:', suffix = 'Complete', length = 50)
     
-    
-    for f in infiles:
+    for i,f in enumerate(infiles):
         fcheck = CheckFile(f)
         if fcheck is False:
             FileWarning(f)
@@ -752,10 +766,7 @@ def SetRasterCRS(infiles,log,a_srs,progress=0):
 
 
         if progress:
-            bar.next()
-
-    if progress:
-        bar.finish()
+            printProgressBar(i+1, len(files), prefix = 'Add CRS to Rasters:', suffix = 'Complete', length = 50)
 
     if any(errors):
         log.info("WARNING: Problem Adding CRS info to some Raster(s)")
@@ -1152,9 +1163,9 @@ def Convert2LAZ(files,pipeline,outdir='',progress=1,method='pdal',
             DirWarning(outdir)
 
     if progress:
-        bar = Bar('Converting from LAS to LAZ', max=len(files))
+        printProgressBar(0, len(files), prefix = 'Convert LAS to LAZ:', suffix = 'Complete', length = 50)
  
-    for infile in files:
+    for i,infile in enumerate(files):
         
         #check that it is a las file
         suffix = infile.split(".")[-1]
@@ -1217,10 +1228,7 @@ def Convert2LAZ(files,pipeline,outdir='',progress=1,method='pdal',
                 ipdb.set_trace()
     
         if progress:        
-            bar.next()
-
-    if progress:
-        bar.finish()
+            printProgressBar(i+1, len(files), prefix = 'Convert LAS to LAZ:', suffix = 'Complete', length = 50)
 
 #end of Convert2LAZ
 #----------------------------------------------------------------------        
@@ -1237,7 +1245,7 @@ def AddCRS2Header(files,log_dir,pipeline,outdir='',
         out_suffix = '_wCRS'
         
     if progress:
-        bar = Bar('Adding CRS to Lidar files:', max=len(files))
+        printProgressBar(0, len(files), prefix = 'Add CRS to Lidar Files:', suffix = 'Complete', length = 50)
 
     #reads in a pipline and executes it.  This module should add the CRS
     #info to the header of the files...
@@ -1253,7 +1261,7 @@ def AddCRS2Header(files,log_dir,pipeline,outdir='',
         if dirCheck is False:
             DirWarning(outdir)
     
-    for infile in files:
+    for i,infile in enumerate(files):
 
         #isolate filename
         outfile = os.path.basename(infile)
@@ -1289,10 +1297,7 @@ def AddCRS2Header(files,log_dir,pipeline,outdir='',
             p2 = subprocess.run(cmd2,shell=True)
 
         if progress:        
-            bar.next()
-
-    if progress:
-        bar.finish()
+            printProgressBar(i+1, len(files), prefix = 'Add CRS to Lidar Files:', suffix = 'Complete', length = 50)
 
 #----------------------------------------------------------------------        
 
@@ -2256,7 +2261,7 @@ def RunQAQC(config):
         Translate2Tiff(infiles,log,outdir_1=config['RasOutDir'],
                        xblock=config['ras_xBlock'],
                        yblock=config['ras_yBlock'],
-                       progress=0)
+                       progress=1)
         stdout.info("PASS: Converted Raster(s) to TIFF(s)")
     #----------------------------------------------------------------------        
 
@@ -2268,7 +2273,7 @@ def RunQAQC(config):
         Warp2Tiff(infiles,log,config['warp_t_srs'],
                   outdir_1=config['RasOutDir'],xblock=config['ras_xBlock'],
                   yblock=config['ras_yBlock'],
-                  progress=0)
+                  progress=1)
 
         stdout.info("PASS: Reprojected TIFFs")        
     #----------------------------------------------------------------------
