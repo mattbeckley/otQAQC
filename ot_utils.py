@@ -1147,7 +1147,7 @@ def checkLASVersion(json):
 
 #----------------------------------------------------------------------    
 def Convert2LAZ(files,pipeline,outdir='',progress=1,method='pdal',
-                wine_path='/Applications/LASTools/bin'):
+                wine_path='/Applications/Wine\ Stable.app/Contents/Resources/wine/bin/wine /Applications/LASTools/bin'):
     
     #convert from las to laz using pdal OR lastools...
 
@@ -1207,12 +1207,12 @@ def Convert2LAZ(files,pipeline,outdir='',progress=1,method='pdal',
                        '\" --writers.las.forward=\"header\" 2>> \"'+errorfile+'\"']
 
             if method == 'lastools':
-                wineCheck = CheckDir(wine_path)
-                if wineCheck is False:
-                    DirWarning(wine_path)
+                #wineCheck = CheckDir(wine_path)
+                #if wineCheck is False:
+                #    DirWarning(wine_path)
 
                 #Convert using LASTools...
-                cmd = ['wine '+os.path.join(wine_path,'las2las.exe')
+                cmd = [os.path.join(wine_path,'las2las.exe')
                        +' -i \"'+infile+'\" -o \"'+outfile+'\" 2>/dev/null']
 
                 
@@ -1393,13 +1393,13 @@ def DissolveBounds(inbounds, outbounds,buffer=0):
 
 #----------------------------------------------------------------------
 def LASBoundary(files,out_boundary,rand_fract=0.2,concavity=100,
-                wine_path='/Users/beckley/Documents/LAStools/bin'):
+                wine_path='/Applications/Wine\ Stable.app/Contents/Resources/wine/bin/wine /Applications/LASTools/bin'):
 
     #Create a Boundary using the lastools lasboundary.exe 
 
-    wineCheck = CheckDir(wine_path)
-    if wineCheck is False:
-        DirWarning(wine_path)
+    #wineCheck = CheckDir(wine_path)
+    #if wineCheck is False:
+    #    DirWarning(wine_path)
     
     numfiles = len(files)
     if numfiles == 0:
@@ -1422,7 +1422,7 @@ def LASBoundary(files,out_boundary,rand_fract=0.2,concavity=100,
     #separate.
     #holes will create a separate polygon for where there are holes in
     #the data.
-    cmd = ['wine '+os.path.join(wine_path,'lasboundary.exe')
+    cmd = [os.path.join(wine_path,'lasboundary.exe')
            +' -lof '+tmpfile+' -merged -keep_random_fraction '
            +str(rand_fract)+' -disjoint -holes -concavity '+str(concavity)+' -o '
            +out_boundary+' 2>/dev/null']
