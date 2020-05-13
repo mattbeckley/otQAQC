@@ -573,7 +573,7 @@ def Warp2Tiff(files,log,t_srs,outdir_1='',xblock=128,yblock=128,
     if not t_srs:
         log.info('FAIL: Must set a target EPSG')
         print('FAIL: Must set a target EPSG')
-        ipdb.set_trace()
+        pdb.set_trace()
         
     for i,infile in enumerate(files):
         
@@ -1154,7 +1154,7 @@ def Convert2LAZ(files,pipeline,outdir='',progress=1,method='pdal',
     method = method.lower()
     if method not in ['lastools','pdal']:
         print('FAIL: must set method to pdal or lastools')
-        ipdb.set_trace()
+        pdb.set_trace()
 
     #check that output directory exists...
     if len(outdir) > 1:
@@ -1225,7 +1225,7 @@ def Convert2LAZ(files,pipeline,outdir='',progress=1,method='pdal',
                 print("\nCHECK ERROR LOG:\n"+errorfile+"\n when completed")
                 cmd2 = ['echo "error with file:" \"'+infile+'\" >> \"'+errorfile+'\"']
                 p2 = subprocess.run(cmd2,shell=True,stderr=subprocess.PIPE)
-                ipdb.set_trace()
+                pdb.set_trace()
     
         if progress:        
             printProgressBar(i+1, len(files), prefix = 'Convert LAS to LAZ:', suffix = 'Complete', length = 50)
@@ -1333,7 +1333,7 @@ def CreateBounds(infiles,out_boundary,epsg,edge_size=50):
     if (p.returncode == 1):
        print('Error Creating Boundary with PDAL..\n')
        print(p)
-       ipdb.set_trace()           
+       pdb.set_trace()           
 
     #remove the file tmp.txt that contains the list of files...
     p2 = subprocess.run('rm -f tmp.txt',shell=True)
@@ -1388,7 +1388,7 @@ def DissolveBounds(inbounds, outbounds,buffer=0):
     if (p.returncode == 1):
        print('Error Dissolving Boundary with OGR..\n')
        print(p)
-       ipdb.set_trace()           
+       pdb.set_trace()           
 #----------------------------------------------------------------------
 
 #----------------------------------------------------------------------
@@ -1433,7 +1433,7 @@ def LASBoundary(files,out_boundary,rand_fract=0.2,concavity=100,
     if (p2.returncode == 1):
        print('Error Creating Boundary with LASTools..\n')
        print(p2)
-       ipdb.set_trace()           
+       pdb.set_trace()           
 
 #----------------------------------------------------------------------
 
@@ -1491,7 +1491,7 @@ def getFiles(indir, wild='.*[LlAaZz]$',ftype='f',recursive=1):
     ftype = ftype.strip()
     if ftype not in ['f','d']:
         print('ftype for find command must be: f or d')
-        ipdb.set_trace()
+        pdb.set_trace()
     
     #get listing of files that match the reg expression and output a
     #list.  ireg will ignore case
@@ -1541,7 +1541,7 @@ def getArea(inpolygon,outpolygon,conv_factor=1.0e6,colName='AREA'):
 
     if (inpoly_check == 0) or (outpoly_check.lower() != 'shp'):
         print('input and output must be shapefiles.  Quitting')
-        ipdb.set_trace()
+        pdb.set_trace()
         sys.exit()
 
     #check for dashes in names - messes with the sql queries.
@@ -1572,7 +1572,7 @@ def getArea(inpolygon,outpolygon,conv_factor=1.0e6,colName='AREA'):
     if (p.returncode == 1):
        print('Error Calculating Area with OGR..\n')
        print(p)
-       ipdb.set_trace()           
+       pdb.set_trace()           
     
     #need to remove the FID from the shapefile, so that when you convert it
     #to kml, it won't be in there.
@@ -1634,7 +1634,7 @@ def shape2KML(infile,outfile):
     if (p.returncode == 1):
        print('Error Creating KML with OGR..\n')
        print(p)
-       ipdb.set_trace()           
+       pdb.set_trace()           
     
     
 #End of shape2KML
@@ -1869,7 +1869,7 @@ def RunQAQC(config):
                  log.info(f)
 
             
-            ipdb.set_trace()
+            pdb.set_trace()
         else:
             stdout.info("PASS:  All files have a horizontal CRS")            
             log.info("PASS:  All files have a horizontal CRS")
@@ -1924,7 +1924,7 @@ def RunQAQC(config):
             for val in unique_epsgs:
                 log.info(str(val))
 
-            ipdb.set_trace()
+            pdb.set_trace()
         else:
             stdout.info("PASS: All files in same HCRS: "+str(unique_epsgs))            
             log.info("PASS: All files in same HCRS: "+str(unique_epsgs))
@@ -1947,7 +1947,7 @@ def RunQAQC(config):
             for val in unique_Vepsgs:
                 log.info(str(val))
 
-            ipdb.set_trace()
+            pdb.set_trace()
         else:
             stdout.info("PASS: All files in same VCRS: "+str(unique_Vepsgs))            
             log.info("PASS: All files in same VCRS: "+str(unique_Vepsgs))
@@ -1968,7 +1968,7 @@ def RunQAQC(config):
         log.info('Checking the version of the las and if it is uniform...')
         if NumVersions > 1:
             log.info("FAIL: Files are in more than one LAS version")
-            ipdb.set_trace()
+            pdb.set_trace()
         else:
             stdout.info("PASS: All files are in version: "+str(Version_check.Version.unique()))
             log.info("PASS: All files are in version: "+str(Version_check.Version.unique()))
@@ -2045,7 +2045,7 @@ def RunQAQC(config):
             log.info('Following files are empty: ')
             for fname in zero_vals['filename']:
                 log.info(fname)
-                ipdb.set_trace()
+                pdb.set_trace()
         else:
             stdout.info("PASS: No empty files")
             log.info("PASS: No empty files")
@@ -2139,7 +2139,7 @@ def RunQAQC(config):
             for f in fname_L:
                  log.info(f)
 
-            ipdb.set_trace()
+            pdb.set_trace()
                  
         else:
             stdout.info("PASS:  All rasters have a CRS")            
@@ -2161,7 +2161,7 @@ def RunQAQC(config):
             for val in unique_WKT:
                 log.info(str(val))
 
-            #ipdb.set_trace()
+            #pdb.set_trace()
         else:
             stdout.info("PASS: All files in same CRS: \n"+str(unique_WKT))            
             log.info("PASS: All files in same CRS: \n"+str(unique_WKT))
@@ -2183,7 +2183,7 @@ def RunQAQC(config):
             for val in colortype:
                 log.info(str(val))
 
-            ipdb.set_trace()
+            pdb.set_trace()
         else:
             stdout.info("PASS: All files have same color type: "+str(colortype))
             log.info("PASS: All files have same color type: "+str(colortype))
@@ -2204,7 +2204,7 @@ def RunQAQC(config):
             for val in datatype:
                 log.info(str(val))
 
-            ipdb.set_trace()
+            pdb.set_trace()
         else:
             stdout.info("PASS: All files have same data type: "+str(datatype))
             log.info("PASS: All files have same data type: "+str(datatype))
@@ -2229,7 +2229,7 @@ def RunQAQC(config):
             for val in pix_res:
                 log.info(str(val))
 
-            ipdb.set_trace()
+            pdb.set_trace()
         else:
             stdout.info("PASS: All files have same pixel size: "+str(pix_res))
             log.info("PASS: All files have same pixel size: "+str(pix_res))
