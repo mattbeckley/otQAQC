@@ -48,6 +48,7 @@
 - [ ] Put Metadata into PDF format if necessary.
 - [ ] Create registration page on xx/xx/xxxx
 - [ ] Add logo to registration
+- [ ] Create tile index for shapefiles and upload to cloud
 - [ ] Uploaded LAZ, and rasters with rsync to beta on xx/xx/xxxx
 - [ ] When data is made public, notify Minh to turn on "Bulk Download"
       option.
@@ -89,6 +90,7 @@
 -  [ ] Check Citation
 -  [ ] Check that las and laz contain proper CRS info
 -  [ ] Check that OT rasters contain CRS and plot in a GIS
+-  [ ] Create tile index for shapefiles 
 
 * Prod testing
 -  [ ] check all links
@@ -99,6 +101,7 @@
 -  [ ] Check Citation
 -  [ ] Check that las and laz contain proper CRS info
 -  [ ] Check that OT rasters contain CRS and plot in a GIS
+-  [ ] Create tile index for shapefiles and upload to cloud
 -  [ ] Add PIs to list of private users
 -  [ ] Add dataset to PI DataProvider List for metrics.
 -  [ ] Make sure Minh: Copies to SDSC Cloud for bulk downloads

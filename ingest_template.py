@@ -193,39 +193,57 @@ config6['RasOutDir'] = '/path/to/output/rasters'
 #Config file for ONLY converting to tiffs.
 #----------------------------------------------------------------------
 ##module to initialize the config file to all null values
-config6 = ot.initializeNullConfig()
+config7 = ot.initializeNullConfig()
 
-config6['log_dir'] = log_dir
-config6['ingestLog'] = os.path.join(log_dir,shortname+'_FLT2TIF_QAQCLog.txt')
-config6['getFilesDir'] =  '/Volumes/New Volume/ToOT_HD35/2018_13_265_Feehan/_Deliverables/Rasters'
-config6['getFilesWild'] = '.*\.flt$'
-config6['ftype']     = 'f'
-config6['recursive'] = 1
-config6['Translate2Tiff'] = 1
-config6['ras_xBlock'] = 256
-config6['ras_yBlock'] = 256
-config6['RasOutDir'] = '/volumes/OT6TB/CA18_Feehan/Rasters'
+config7['log_dir'] = log_dir
+config7['ingestLog'] = os.path.join(log_dir,shortname+'_FLT2TIF_QAQCLog.txt')
+config7['getFilesDir'] =  '/Volumes/New Volume/ToOT_HD35/2018_13_265_Feehan/_Deliverables/Rasters'
+config7['getFilesWild'] = '.*\.flt$'
+config7['ftype']     = 'f'
+config7['recursive'] = 1
+config7['Translate2Tiff'] = 1
+config7['ras_xBlock'] = 256
+config7['ras_yBlock'] = 256
+config7['RasOutDir'] = '/volumes/OT6TB/CA18_Feehan/Rasters'
 
 #Run module to reproject rasters...
-#ot.RunQAQC(config6)
+#ot.RunQAQC(config7)
 #----------------------------------------------------------------------
 
 
 #Make sure the proper CRS info is in the header.
 #----------------------------------------------------------------------
 #module to initialize the config file to all null values?
-config7 = ot.initializeNullConfig()
-config7['SetRasterCRS'] = 1
-config7['log_dir'] = log_dir
-config7['ingestLog'] = os.path.join(log_dir,shortname+'_TEST_QAQCLog.txt')
-config7['getFilesDir'] =  '/volumes/OT6TB/CA17_Dietrich/2017_ESRI_50cm'
-config7['getFilesWild'] = '.*\.tif$'
-config7['ftype']     = 'f'
-config7['recursive'] = 1
-config7['a_srs']='6339+5703'
+config8 = ot.initializeNullConfig()
+config8['SetRasterCRS'] = 1
+config8['log_dir'] = log_dir
+config8['ingestLog'] = os.path.join(log_dir,shortname+'_TEST_QAQCLog.txt')
+config8['getFilesDir'] =  '/volumes/OT6TB/CA17_Dietrich/2017_ESRI_50cm'
+config8['getFilesWild'] = '.*\.tif$'
+config8['ftype']     = 'f'
+config8['recursive'] = 1
+config8['a_srs']='6339+5703'
 
 #Run module to re-check the raster metadata
-#ot.RunQAQC(config7)
+#ot.RunQAQC(config8)
+#----------------------------------------------------------------------
+
+
+#Create Tile Index of Lidar files
+#----------------------------------------------------------------------
+#module to initialize the config file to all null values?
+config9 = ot.initializeNullConfig()
+config9['CreateLAZIndex'] = 1
+config9['log_dir'] = log_dir
+config9['ingestLog'] = os.path.join(log_dir,shortname+'_TEST_QAQCLog.txt')
+config9['getFilesDir'] =  '/volumes/OT6TB/CA17_Dietrich/2017_ESRI_50cm'
+config9['getFilesWild'] = '.*\.tif$'
+config9['ftype']     = 'f'
+config9['recursive'] = 1
+config9['LAZTileFile'] = os.path.join(bounds_base,'LAZTileIndex.shp')
+
+#Run module to re-check the raster metadata
+#ot.RunQAQC(config9)
 #----------------------------------------------------------------------
 
     

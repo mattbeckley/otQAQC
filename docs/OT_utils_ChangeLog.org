@@ -1,0 +1,88 @@
+*  Needed work:
+- Check that DSM > DEM.  Randomized points along surface and sample.
+- Add routine to create set of randomized points in the boundary and
+  sample the rasters.  Verify that DSM > DTM.
+- for PDAL boundaries - need to put in checks for geometry errors.
+- module to merged shapefiles - may already have one in my utils..
+- check for multiple image formats.. (use set command)
+- problems with Dissolve.  Need to check for errors.  sometimes it
+  will jsut write out a dbf, and give no error
+- all modules should probably take full path.  Then I can have a
+  separate module that will split paths and return basename,
+  dirname, filename without suffix, suffix only, etc.
+- May need to put in a check that header variables haven't been
+  changed from the originals?  Or could just do a comparison using this
+  code to make sure the versions are the same?
+- how to deal with the Boundary Creation better - when are there too
+  many points? (NZ18_Marlbo).
+- how to handle directories with *._ files.  ex: ._2017_DEF_50cm.flt
+  This has already happened a couple of times.  spent too much time
+  getting a regular expression that will filter it out.
+- Deal with logs better.  maybe write out logs, and exit if there is an
+  error for prod version.  In beta version, I could have it enter a ipdb
+  session?
+- Add routine to create KMZ from KML.  
+- Put file count in the initial log somewhere.   
+- Log should be a keyword input to modules, this way you could call a
+  module from the command line without worrying about logging.  Move
+  most log comments out of individual modules, and back into RunQAQC
+  module.  On certain cases, you could use log in specific module by
+  passing as keyword.  
+- Write "Transform2Tiff_errors.txt" error file to logs or somewhere
+  other than the directory with the rasters?
+- PRIORITY - I GET BURNED ON THIS EVERYTIME!
+  OUTDIR VS RASOUTDIR.  There is going to be confusion here.  How to
+  get around this?  Use YML and group each module with its own
+  parameters.  Don't know how I will get around parameters that are used
+  in multiple functions?
+- Why do I have to add a suffix when I am adding CRS to header and
+  outputting to a different directory?  Logic is messed up here.  Refer
+  to module AddCRS2Header.  Also in this module - how to handle if I
+- want to add a CRS and convert to LAZ all in one step.  How to handle
+  the output naming convention.  Right now it keeps it as .las, so need
+  to think about this one.
+- Add ability to scrape GPS time from LAZ files?  Min/Max GPS time
+  could automate dates of survey.  May need GPS DOW.
+- Add ability to create boundary from just rasters.
+- Add check that all rasters are in the same CRS.  I have one module 
+  already that can be adapted for this purpose.
+
+*  Updates
+-  06/09/2020.  Added the module, CreateLAZTile, which will take in a
+  list of files, and create a tile boundary of the bounding box of
+  the laz files.  This is useful for users who want to download
+  specific sets of files from bulk.
+-  11/05/2019.  Added the ability to check for empty lidar files.  For
+  CA18_Feehan, there were some files with just a header.  The header
+  also had bad MIN/MAX values.  When I converted it from las to LAZ,
+  this made the header values blow up, and this caused an issue with
+  Minh's input.  So, need to check for empty files.
+
+*  BugFixes
+-  
+
+*  config File issues
+-  GUI will provide flexibility, but you can't run a big job that 
+   checks everything.  It will be a stepwise process.  it will also
+   Take a lot of coding to get this set up.
+-  YAML or JSONNET will accept comments.  YAML does now allow
+   conditionals.
+-  By having a single config file, you can only have a single log file
+   Right now by having it in python, I am actually running the program
+   multiple times, so I can have different log files for each step.
+-  basically what I want is to be able to have comments in the config,
+   but also to know which elements are required for each setting.
+-  JSONNET so far seems to be a pain to read in.
+-  Technically, I am not even using JSON right now, and I am using python
+   So, I could put comments in the python ingest script.  The user still 
+   won't know what parameters are required or which ones are available.  
+   I could just put the kitchen sink in, with most of them commented out?
+*  Docker version
+-  I was able to get a docker container with pdal, gdal, and all python
+  libraries.  I was also able to get wine working with lastools in a
+  docker.  The problem is when wine is installed in a container, it
+  somehow prevents pdal from working.  I suspect it is a user
+  permissions issue, although I was able to login in as root using the
+  entrypoint command in the docker file, but it still couldn't find
+  pdal.  So, one option, is to keep a branch that will be for using
+  docker, but it will be using only pdal?

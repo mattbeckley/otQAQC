@@ -257,3 +257,15 @@
    projected tiff to be in.  Input file must contain SRS info in the
    header.  Value should be only the numeric code, but in string form.
    ex: '6339'.  This keyword is only used for module, Warp2TIFF.
+
+- *CreateLAZIndex*.  This module will take in a list of files, and
+  create a tile boundary of the bounding box of the laz files.  This
+  is useful for users who want to download specific sets of files from
+  bulk.  It will output a shapefile where the attribute table will
+  contain the lidar file name of each of the bounding boxes.
+
+- *LAZTileFile*.  Name of the shapefile that is output from
+   CreateLAZIndex.  This shapefile will show the bounding boxes of all
+   the lidar files.  A zipped version of this shapefile should be
+   placed in the cloud to help users download specific files from
+   bulk.  

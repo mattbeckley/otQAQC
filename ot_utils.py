@@ -14,8 +14,8 @@ gdal.UseExceptions()
 
 
 """Name: 
-   Description:  This is the prototype of code to do all the checking
-   for a CRS ingest.
+   Description:  This is the beta version of code to do QA/QC and data
+   prep of datasets before ingesting into OT.
 
    Date Created: 02/11/2019
 
@@ -24,7 +24,6 @@ gdal.UseExceptions()
    Keyword(s):
    Update(s):
    Notes:
-   #Test to see if git push is working....
 
 """
 
@@ -33,7 +32,7 @@ __author__      = "Matthew Beckley"
 #----------------------------------------------------------------------
 def printProgressBar (iteration, total, prefix = '', suffix = '',
                       decimals = 1, length = 100,
-                      fill = '█', printEnd = "\r"):
+                      fill = 'X', printEnd = "\r"):
     """
     Call in a loop to create terminal progress bar
     @params:
@@ -104,7 +103,9 @@ def initializeNullConfig():
               'Warp2Tiff':0,
               'ras_xBlock':0,
               'ras_yBlock':0,
-              'warp_t_srs':''}
+              'warp_t_srs':'',
+              'CreateLAZIndex':0,
+              'LAZTileFile':''}
 
     return config
 #----------------------------------------------------------------------
@@ -1339,6 +1340,8 @@ def CreateBounds(infiles,out_boundary,epsg,edge_size=50):
     p2 = subprocess.run('rm -f tmp.txt',shell=True)
 #----------------------------------------------------------------------
 
+
+
 #----------------------------------------------------------------------
 def DissolveBounds(inbounds, outbounds,buffer=0):
     """
@@ -1739,6 +1742,47 @@ def RemoveFields(file,fields2delete=[],OnlyKeep=[]):
 
 #End of RemoveFields
 #-----------------------------------------------------------------
+
+#----------------------------------------------------------------------
+def CreateLAZIndex(files, log, out_index,
+                   wine_path='/Applications/Wine\ Stable.app/Contents/Resources/wine/bin/wine /Applications/LASTools/bin'):
+    """
+    This module will create a tile index of the broad bounding box of
+    all the laz files.  This will be useful for people downloading
+    files from bulk.  
+    """
+    
+    numfiles = len(files)
+    if numfiles == 0:
+        print('Cannot make tile index - file list is empty')
+        sys.exit()
+        
+    print('Creating Lidar Tile Index for: '+str(numfiles)+' files...')
+
+    bounds_base = os.path.dirname(out_index)
+
+    baseCheck = CheckDir(bounds_base)
+    if baseCheck is False:
+        DirWarning(bounds_base)
+    
+    #need to output a temporary file
+    tmpfile = CreateTempFile(files,bounds_base)
+
+    cmd = [os.path.join(wine_path,'lasboundary.exe')
+           +' -lof '+tmpfile+' -use_bb -overview -labels -o '
+           +out_index+' 2>/dev/null']
+
+    p2 = subprocess.run(cmd,shell=True,stdout=PIPE)
+    p3 = subprocess.run('rm -f '+tmpfile,shell=True)
+
+    if (p2.returncode == 1):
+       print('Error Creating Tile Index with LASTools..\n')
+       print(p2)
+       pdb.set_trace()           
+
+#End of CreateLAZIndex
+#----------------------------------------------------------------------
+
 
 def RunQAQC(config):
     """
@@ -2278,6 +2322,15 @@ def RunQAQC(config):
         stdout.info("PASS: Reprojected TIFFs")        
     #----------------------------------------------------------------------
 
+    #Creating Tile index from Lidar files.
+    #----------------------------------------------------------------------
+    if config['CreateLAZIndex']:
+        stdout.info('Creating Lidar Tile Index...')
+
+        CreateLAZIndex(infiles,log,out_index=config['LAZTileFile'])
+
+        stdout.info("PASS: Created Lidar Tile Index")        
+    #----------------------------------------------------------------------
         
     ingest_end_time = datetime.now()
     log.info('Total Time:\n')
