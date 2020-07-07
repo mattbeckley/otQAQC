@@ -1639,11 +1639,11 @@ def shape2KML(infile,outfile):
 
     #put it into KMZ.  Check if KML exists
     if os.path.exists(outfile):
-        outdir = os.path.dirname(outfile)
-        outfile = os.path.basename(outfile)
-        outkmz = outfile.split('.')[0]+'.kmz'
+        outdir   = os.path.dirname(outfile)
+        kmlfile  = os.path.basename(outfile)
+        outkmz   = kmlfile.split('.')[0]+'.kmz'
         outkmzpath = os.path.join(outdir,outkmz)
-        cmd2 = ['zip -r '+outkmzpath+' '+outfile]
+        cmd2 = ['zip -r '+outkmzpath+' '+outkmz]
         try:
             p2 = subprocess.run(cmd2,shell=True)
         except:
