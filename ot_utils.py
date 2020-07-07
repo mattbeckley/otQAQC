@@ -1577,12 +1577,7 @@ def getArea(inpolygon,outpolygon,conv_factor=1.0e6,colName='AREA'):
        print(p)
        pdb.set_trace()           
     
-    #need to remove the FID from the shapefile, so that when you convert it
-    #to kml, it won't be in there.
-    #ogrinfo PDALmerged.shp -sql "alter table NZ16_Otago drop column FID"
 
-    #to put it into KMZ:
-    #zip -r FINAL_Bounds.kmz FINAL_Bounds.kml
 #----------------------------------------------------------------------
 
 #-----------------------------------------------------------------     
@@ -1594,7 +1589,7 @@ def shape2KML(infile,outfile):
     
     Ex:
     from mab_utils import Shape2KML
-    Shape2KML("RefGround_Sep24to30_2013_Line.shp")
+    Shape2KML("RefGround_Sep24to30_2013_Line.shp", "outfile.kml")
 
     Quirks:  
     1.  code will put output file in current directory.
@@ -1603,8 +1598,7 @@ def shape2KML(infile,outfile):
 
     NOTES:
     1.  MAB 10/27/2014.  Now need to supply outfile name.
-    2.  #to get into a kml format:
-        ogr2ogr -f "KML" FINAL_Bounds.kml PDALmerged.shp
+    2.  MAB 07/07/2020.  Will also export a kmz of the file as well.
 
     """
     #check for input file
@@ -1638,8 +1632,25 @@ def shape2KML(infile,outfile):
        print('Error Creating KML with OGR..\n')
        print(p)
        pdb.set_trace()           
-    
-    
+
+    #need to remove the FID from the shapefile, so that when you convert it
+    #to kml, it won't be in there.
+    #ogrinfo PDALmerged.shp -sql "alter table NZ16_Otago drop column FID"
+
+    #put it into KMZ.  Check if KML exists
+    if os.path.exists(outfile):
+        outdir = os.path.dirname(outfile)
+        outfile = os.path.basename(outfile)
+        outkmz = outfile.split('.')[0]+'.kmz'
+        outkmzpath = os.path.join(outdir,outkmz)
+        cmd2 = ['zip -r '+outkmzpath+' '+outfile]
+        try:
+            p2 = subprocess.run(cmd2,shell=True)
+        except:
+            print('Error Creating KMZ...')
+            print(p2)
+            pdb.set_trace()           
+            
 #End of shape2KML
 #----------------------------------------------------------------- 
 

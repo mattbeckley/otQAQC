@@ -57,6 +57,8 @@
   also had bad MIN/MAX values.  When I converted it from las to LAZ,
   this made the header values blow up, and this caused an issue with
   Minh's input.  So, need to check for empty files.
+- 07/07/2020.  Added ability to convert kml to kmz.  Also updated
+ingest python and org files. 
 
 *  BugFixes
 -  

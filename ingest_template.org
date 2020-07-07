@@ -48,7 +48,8 @@
 - [ ] Put Metadata into PDF format if necessary.
 - [ ] Create registration page on xx/xx/xxxx
 - [ ] Add logo to registration
-- [ ] Create tile index for shapefiles and upload to cloud
+- [ ] Create tile index for shapefiles 
+- [ ] Upload tile index to cloud
 - [ ] Uploaded LAZ, and rasters with rsync to beta on xx/xx/xxxx
 - [ ] When data is made public, notify Minh to turn on "Bulk Download"
       option.
@@ -63,9 +64,10 @@
 *  Summary
 **  Original Check Before ingest
 -  Title:  
--  PI 
+-  PI: 
 -  CRS according to metadata:
-   -  HCRS/VCRS: 
+   -  HCRS datum:
+   -  VCRS datum: 
    -  Projection: 
    -  Original LAS/LAZ file count:  
    -  Original files are in la? 1.x 
@@ -73,12 +75,11 @@
 * Bounds
 
 **  Area
--   km^2.  My calcs matched QGIS.  Metadata reports 
+-  km^2.  
+-  My calcs matched QGIS.  
+-  Metadata reports: 
 
 *  Metadata
-
-*  CRS checks
--  all files are in EPSG: and version 1.x
 
 * Rasters
 * Beta Testing
@@ -101,7 +102,8 @@
 -  [ ] Check Citation
 -  [ ] Check that las and laz contain proper CRS info
 -  [ ] Check that OT rasters contain CRS and plot in a GIS
--  [ ] Create tile index for shapefiles and upload to cloud
+-  [ ] Create tile index for shapefiles 
+-  [ ] Upload tile index to cloud
 -  [ ] Add PIs to list of private users
 -  [ ] Add dataset to PI DataProvider List for metrics.
 -  [ ] Make sure Minh: Copies to SDSC Cloud for bulk downloads
