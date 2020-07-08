@@ -1643,7 +1643,7 @@ def shape2KML(infile,outfile):
         kmlfile  = os.path.basename(outfile)
         outkmz   = kmlfile.split('.')[0]+'.kmz'
         outkmzpath = os.path.join(outdir,outkmz)
-        cmd2 = ['zip -r '+outkmzpath+' '+outkmzpath]
+        cmd2 = ['zip -r '+outkmzpath+' '+outfile]
         try:
             p2 = subprocess.run(cmd2,shell=True)
         except:
