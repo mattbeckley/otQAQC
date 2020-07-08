@@ -1147,7 +1147,7 @@ def checkLASVersion(json):
 
 
 #----------------------------------------------------------------------    
-def Convert2LAZ(files,pipeline,outdir='',progress=1,method='pdal',
+def Convert2LAZ(files,pipeline,log_dir,outdir='',progress=1,method='pdal',
                 wine_path='/Applications/Wine\ Stable.app/Contents/Resources/wine/bin/wine /Applications/LASTools/bin'):
     
     #convert from las to laz using pdal OR lastools...
@@ -1187,7 +1187,7 @@ def Convert2LAZ(files,pipeline,outdir='',progress=1,method='pdal',
             outdir = os.path.dirname(infile)
             outfile = os.path.join(outdir,outfile)
         
-        errorfile = os.path.join(outdir,'LAS2LAZ_errors.txt')
+        errorfile = os.path.join(log_dir,'LAS2LAZ_errors.txt')
 
         if outfile:
 
@@ -1220,13 +1220,65 @@ def Convert2LAZ(files,pipeline,outdir='',progress=1,method='pdal',
             #needed the shell=True for this to work
             p = subprocess.run(cmd,shell=True,stderr=subprocess.PIPE)
 
-            #Want to know if there is a problem...
+
+
+            #if there is a problem, try the alternate method
             if (p.returncode == 1):
                 print("\nProblem with the LAS conversion for file:\n"+infile)
-                print("\nCHECK ERROR LOG:\n"+errorfile+"\n when completed")
-                cmd2 = ['echo "error with file:" \"'+infile+'\" >> \"'+errorfile+'\"']
-                p2 = subprocess.run(cmd2,shell=True,stderr=subprocess.PIPE)
-                pdb.set_trace()
+                print("Trying alternate method...\n")
+                cmd5 = ['echo "Issue with file:" \"'+infile+'\" Tried alternate conversion method >> \"'+errorfile+'\"']
+
+                if method == 'pdal':
+                    #try with lastools
+                    #Need to get the minor version of the problem file
+                    cmd2 = ['pdal info --metadata '+infile+' > tmp.txt 2>/dev/null']
+                    p2   = subprocess.run(cmd2,shell=True,stderr=subprocess.PIPE)
+
+                    #read in the tmp json file
+                    with open('tmp.txt','r') as read_file:
+                        data = json.load(read_file)
+                        
+                    minor_version = str(data['metadata']['minor_version'])
+                        
+                    #remove the file tmp.txt 
+                    p3 = subprocess.run('rm -f tmp.txt',shell=True)
+
+                    cmd4 = [os.path.join(wine_path,'las2las.exe')
+                            +' -i \"'+infile+'\" -o \"'+outfile+'\" -set_version_minor '
+                            +minor_version+'  2>/dev/null']
+
+                    p4 = subprocess.run(cmd4,shell=True,stderr=subprocess.PIPE)
+
+                    #Cannot easily add CRS info with Lastools, but for
+                    #some reason, calling it with forward="header" was
+                    #causing a  problem.  So, explicity preserving
+                    #version numbers.  
+                    #This is only a one-off for the problem file
+                    cmd4b = ['pdal pipeline '+pipeline+' --readers.las.filename=\"'+outfile
+                            +'\" --writers.las.filename=tmp.laz --writers.las.forward=\"major_version\"'
+                            +' --writers.las.forward=\"minor_version\" 2>> \"'+errorfile+'\"']
+                    p4b = subprocess.run(cmd4b,shell=True,stderr=subprocess.PIPE)
+
+                    #overwrite old laz file with new laz file that has CRS and versions preserved  
+                    p4c = subprocess.run('mv -f tmp.laz '+outfile,shell=True)
+
+                else:
+                    #try with PDAL
+                    cmd4 = ['pdal pipeline '+pipeline+
+                            ' --readers.las.filename=\"'+infile+
+                            '\" --writers.las.filename=\"'+outfile+
+                            '\" --writers.las.forward=\"header\" 2>> \"'+errorfile+'\"']
+                    
+                    p4 = subprocess.run(cmd4,shell=True,stderr=subprocess.PIPE)
+
+                if (p4.returncode == 1):
+                    print("\nProblem with the LAS conversion for file:\n"+infile)
+                    print("Could not convert to LAZ with PDAL or LAStools\n")
+                    print("\nCHECK ERROR LOG:\n"+errorfile+"\n when completed")
+                    cmd5 = ['echo "Could not convert with PDAL or LT:" \"'+infile+'\" >> \"'+errorfile+'\"']
+                    p5 = subprocess.run(cmd5,shell=True,stderr=subprocess.PIPE)
+
+                    pdb.set_trace()
     
         if progress:        
             printProgressBar(i+1, len(files), prefix = 'Convert LAS to LAZ:', suffix = 'Complete', length = 50)
@@ -1282,8 +1334,7 @@ def AddCRS2Header(files,log_dir,pipeline,outdir='',
             #write errors to a file
             cmd = ['pdal pipeline '+pipeline+' --readers.las.filename=\"'
                    +infile+'\" --writers.las.filename=\"'+outfile+'\"'
-                   +' --writers.las.forward=\"header\" + 2>> '
-                   +os.path.join(log_dir,'CRSDefineErrors.txt')]
+                   +' 2>> '+os.path.join(log_dir,'CRSDefineErrors.txt')]
 
             #needed the shell=True for this to work
             p = subprocess.run(cmd,shell=True)#,stderr=subprocess.PIPE)
@@ -1867,8 +1918,10 @@ def RunQAQC(config):
         else:
             log.info('Same directory as input files')
             
-        Convert2LAZ(infiles,config['pipeline'],outdir=config['LAZDir_out'],
-                    method=config['LAS2LAZ_method'],progress=1)
+        Convert2LAZ(infiles,config['pipeline'],config['log_dir'],
+                    outdir=config['LAZDir_out'],
+                    method=config['LAS2LAZ_method'],
+                    progress=1)
         log.info('------------------------------------------------------\n')
 
     if config['CreatePDALInfo']:
