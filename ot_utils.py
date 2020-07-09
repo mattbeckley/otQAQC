@@ -1226,7 +1226,8 @@ def Convert2LAZ(files,pipeline,log_dir,outdir='',progress=1,method='pdal',
             if (p.returncode == 1):
                 print("\nProblem with the LAS conversion for file:\n"+infile)
                 print("Trying alternate method...\n")
-                cmd5 = ['echo "Issue with file:" \"'+infile+'\" Tried alternate conversion method >> \"'+errorfile+'\"']
+                cmd6 = ['echo "Issue with file:" \"'+infile+'\" Tried alternate conversion method >> \"'+errorfile+'\"']
+                p6   = subprocess.run(cmd6,shell=True,stderr=subprocess.PIPE)                
 
                 if method == 'pdal':
                     #try with lastools
