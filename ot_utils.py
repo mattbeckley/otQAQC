@@ -1695,7 +1695,9 @@ def shape2KML(infile,outfile):
         kmlfile  = os.path.basename(outfile)
         outkmz   = kmlfile.split('.')[0]+'.kmz'
         outkmzpath = os.path.join(outdir,outkmz)
-        cmd2 = ['zip -r '+outkmzpath+' '+outfile]
+        #-j will store just the filename and not the whole path.  This
+        #was causing an issue with the OT ingest on beta
+        cmd2 = ['zip -rj '+outkmzpath+' '+outfile]
         try:
             p2 = subprocess.run(cmd2,shell=True)
         except:
