@@ -21,8 +21,6 @@
 - Deal with logs better.  maybe write out logs, and exit if there is an
   error for prod version.  In beta version, I could have it enter a ipdb
   session?
-- Add routine to create KMZ from KML.  
-- Put file count in the initial log somewhere.   
 - Log should be a keyword input to modules, this way you could call a
   module from the command line without worrying about logging.  Move
   most log comments out of individual modules, and back into RunQAQC
@@ -38,7 +36,7 @@
 - Why do I have to add a suffix when I am adding CRS to header and
   outputting to a different directory?  Logic is messed up here.  Refer
   to module AddCRS2Header.  Also in this module - how to handle if I
-- want to add a CRS and convert to LAZ all in one step.  How to handle
+  want to add a CRS and convert to LAZ all in one step.  How to handle
   the output naming convention.  Right now it keeps it as .las, so need
   to think about this one.
 - Add ability to scrape GPS time from LAZ files?  Min/Max GPS time

@@ -104,8 +104,9 @@ def initializeNullConfig():
               'ras_xBlock':0,
               'ras_yBlock':0,
               'warp_t_srs':'',
-              'CreateLAZIndex':0,
-              'LAZTileFile':''}
+              'CreateTileIndex':0,
+              'OutputTileFile':'',
+              'Tileftype':''}
 
     return config
 #----------------------------------------------------------------------
@@ -1809,12 +1810,16 @@ def RemoveFields(file,fields2delete=[],OnlyKeep=[]):
 #-----------------------------------------------------------------
 
 #----------------------------------------------------------------------
-def CreateLAZIndex(files, log, out_index,
-                   wine_path='/Applications/Wine\ Stable.app/Contents/Resources/wine/bin/wine /Applications/LASTools/bin'):
+def CreateTileIndex(files, log, out_index,
+                    wine_path='/Applications/Wine\ Stable.app/Contents/Resources/wine/bin/wine /Applications/LASTools/bin',
+                    ftype='LAZ'):
     """
     This module will create a tile index of the broad bounding box of
-    all the laz files.  This will be useful for people downloading
-    files from bulk.  
+    input files.  This will be useful for people downloading
+    files from bulk.  Note when tiling the rasters, it assumes all the
+    files are in the same directory.  I had to do this because I
+    don't want the full path of the files to appear in the attribute
+    table.    
     """
     
     numfiles = len(files)
@@ -1822,7 +1827,7 @@ def CreateLAZIndex(files, log, out_index,
         print('Cannot make tile index - file list is empty')
         sys.exit()
         
-    print('Creating Lidar Tile Index for: '+str(numfiles)+' files...')
+    print('Creating Tile Index for: '+str(numfiles)+' files...')
 
     bounds_base = os.path.dirname(out_index)
 
@@ -1830,22 +1835,51 @@ def CreateLAZIndex(files, log, out_index,
     if baseCheck is False:
         DirWarning(bounds_base)
     
-    #need to output a temporary file
-    tmpfile = CreateTempFile(files,bounds_base)
+    if ftype == 'LAZ':
+        #need to output a temporary file
+        tmpfile = CreateTempFile(files,bounds_base)
 
-    cmd = [os.path.join(wine_path,'lasboundary.exe')
-           +' -lof '+tmpfile+' -use_bb -overview -labels -o '
-           +out_index+' 2>/dev/null']
+        cmd = [os.path.join(wine_path,'lasboundary.exe')
+               +' -lof '+tmpfile+' -use_bb -overview -labels -o '
+               +out_index+' 2>/dev/null']
 
-    p2 = subprocess.run(cmd,shell=True,stdout=PIPE)
-    p3 = subprocess.run('rm -f '+tmpfile,shell=True)
+        p2 = subprocess.run(cmd,shell=True,stdout=PIPE)
+        p3 = subprocess.run('rm -f '+tmpfile,shell=True)
 
-    if (p2.returncode == 1):
-       print('Error Creating Tile Index with LASTools..\n')
-       print(p2)
-       pdb.set_trace()           
+        if (p2.returncode == 1):
+           print('Error Creating Tile Index with LASTools..\n')
+           print(p2)
+           pdb.set_trace()           
 
-#End of CreateLAZIndex
+    elif ftype == 'RASTER':
+        CWD = os.getcwd()
+        #assume all files are in the same directory
+        base = os.path.dirname(files[0])
+
+        baseCheck = CheckDir(base)
+        if baseCheck is False:
+            DirWarning(base)
+
+        files_only = [os.path.basename(f) for f in files]
+
+        os.chdir(base)
+        tmpfile = CreateTempFile(files_only,base)
+
+        cmd2 = ['gdaltindex -t_srs EPSG:4326 '+out_index+' `cat '+tmpfile+'`']
+        p4   = subprocess.run(cmd2,shell=True,stdout=PIPE)
+        p5   = subprocess.run('rm -f '+tmpfile,shell=True)
+
+        os.chdir(CWD)
+
+        if (p4.returncode == 1):
+           print('Error Creating Tile Index with gdaltindex...\n')
+           print(p4)
+           pdb.set_trace()           
+    else:
+        print('You must set ftype to either "LAZ or "RASTER".  Exiting without execution.')
+        sys.exit()
+
+#End of CreateTileIndex
 #----------------------------------------------------------------------
 
 
@@ -2389,14 +2423,15 @@ def RunQAQC(config):
         stdout.info("PASS: Reprojected TIFFs")        
     #----------------------------------------------------------------------
 
-    #Creating Tile index from Lidar files.
+    #Creating Tile index for LAZ OR Raster files.
     #----------------------------------------------------------------------
-    if config['CreateLAZIndex']:
-        stdout.info('Creating Lidar Tile Index...')
+    if config['CreateTileIndex']:
+        stdout.info('Creating Tile Index...')
 
-        CreateLAZIndex(infiles,log,out_index=config['LAZTileFile'])
+        CreateTileIndex(infiles,log,config['OutputTileFile'],
+                        ftype=config['Tileftype'])
 
-        stdout.info("PASS: Created Lidar Tile Index")        
+        stdout.info("PASS: Created Tile Index")        
     #----------------------------------------------------------------------
         
     ingest_end_time = datetime.now()

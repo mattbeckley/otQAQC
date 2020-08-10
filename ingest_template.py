@@ -75,7 +75,7 @@ config2['winePath'] = '/Applications/Wine\ Stable.app/Contents/Resources/wine/bi
 config2['CreateLASBoundary'] = 1
 config2['bounds_LT'] = os.path.join(bounds_base,'LTBounds.shp')
 config2['randFrac'] = 0.25
-config2['concavity'] = 100
+config2['concavity'] = 75
 config2['bounds_LTArea'] = os.path.join(bounds_base,'LTBoundswArea.shp')
 config2['bounds_LTKML'] = os.path.join(bounds_base,'LTBoundswArea.kml')
 
@@ -190,17 +190,36 @@ config7['a_srs']='6339+5703'
 #----------------------------------------------------------------------
 #module to initialize the config file to all null values?
 config8 = ot.initializeNullConfig()
-config8['CreateLAZIndex'] = 1
+config8['CreateTileIndex'] = 1
 config8['log_dir'] = log_dir
 config8['ingestLog'] = os.path.join(log_dir,shortname+'_TileIndex_QAQCLog.txt')
 config8['getFilesDir'] =  '/volumes/OT6TB/Shortname/LAZ'
 config8['getFilesWild'] = '.*\.laz$'
 config8['ftype']     = 'f'
 config8['recursive'] = 0
-config8['LAZTileFile'] = os.path.join(bounds_base,'Shortname_TileIndex.shp')
+config8['Tileftype'] = 'LAZ'
+config8['OutputTileFile'] = os.path.join(bounds_base,'Shortname_TileIndex.shp')
 
 #Run module to re-check the raster metadata
 #ot.RunQAQC(config8)
+#----------------------------------------------------------------------
+
+#Create Tile Index of rasters
+#----------------------------------------------------------------------
+#module to initialize the config file to all null values?
+config9 = ot.initializeNullConfig()
+config9['CreateTileIndex'] = 1
+config9['log_dir'] = log_dir
+config9['ingestLog'] = os.path.join(log_dir,shortname+'_OrthoTileIndex_QAQCLog.txt')
+config9['getFilesDir'] =  '/volumes/OT6TB/Shortname/DSM'
+config9['getFilesWild'] = '.*\.tif$'
+config9['ftype']     = 'f'
+config9['recursive'] = 0
+config9['OutputTileFile'] = os.path.join(bounds_base,'Shortname_DSMTileIndex.shp')
+config9['Tileftype'] = 'RASTER'
+
+#Run module to re-check the raster metadata
+#ot.RunQAQC(config9)
 #----------------------------------------------------------------------
 
     

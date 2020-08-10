@@ -258,14 +258,20 @@
    header.  Value should be only the numeric code, but in string form.
    ex: '6339'.  This keyword is only used for module, Warp2TIFF.
 
-- *CreateLAZIndex*.  This module will take in a list of files, and
-  create a tile boundary of the bounding box of the laz files.  This
+- *CreateTileIndex*.  This module will take in a list of files, and
+  create a tile boundary of the bounding box of the files.  This
   is useful for users who want to download specific sets of files from
   bulk.  It will output a shapefile where the attribute table will
-  contain the lidar file name of each of the bounding boxes.
+  contain the file name of each of the bounding boxes.  This will work
+  for both lidar or raster files.    
 
-- *LAZTileFile*.  Name of the shapefile that is output from
-   CreateLAZIndex.  This shapefile will show the bounding boxes of all
-   the lidar files.  A zipped version of this shapefile should be
-   placed in the cloud to help users download specific files from
-   bulk.  
+- *Tileftype*.  Set this keyword, to either 'LAZ' or 'RASTER'.  This
+  will feed into the module, CreateTileIndex, and will determine
+  whether you are tiling laz files with lasboundary or tiling rasters
+  with gdaltindex.  For rasters it assumes all the rasters are in the
+  same directory.
+
+- *OutputTileFile*.  Name of the shapefile that is output from
+   CreateTileIndex.  This shapefile will show the bounding boxes of
+   all the files.  A zipped version of this shapefile should be placed
+   in the cloud to help users download specific files from bulk.
