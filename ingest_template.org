@@ -49,16 +49,13 @@
 - [ ] Create registration page on xx/xx/xxxx
 - [ ] Add logo to registration
 - [ ] Create tile index for shapefiles 
-- [ ] Upload tile index to cloud
+- [ ] Verify that tile index is in cloud
 - [ ] Uploaded LAZ, and rasters with rsync to beta on xx/xx/xxxx
-- [ ] When data is made public, notify Minh to turn on "Bulk Download"
-      option.
-- [ ] When data is public, make sure you can see boundary in global view
-      (especially for LINZ data).  If not, notify minh to update the
-      boundaries .
-- [ ] When data is made public add project to PI's registration page so
-      they can see stats on their dataset (if applicable)
-- [ ] When data is made public, add to Catalog Service for the Web (CSW)
+- [ ] Add dataset to PI DataProvider List for metrics.
+- [ ] Make sure Minh: Copies to SDSC Cloud for bulk downloads
+- [ ] Make sure Minh: Updates KML for “Find Data” Map
+- [ ] Make sure Minh: Inserts record to GeoPortal
+- [ ] Update Excel spreadsheet.
 
 
 *  Summary
@@ -80,7 +77,6 @@
 -  Metadata reports: 
 
 *  Metadata
-
 * Rasters
 * Beta Testing
 -  [ ] check all links
@@ -105,8 +101,3 @@
 -  [ ] Create tile index for shapefiles 
 -  [ ] Upload tile index to cloud
 -  [ ] Add PIs to list of private users
--  [ ] Add dataset to PI DataProvider List for metrics.
--  [ ] Make sure Minh: Copies to SDSC Cloud for bulk downloads
--  [ ] Make sure Minh: Updates KML for “Find Data” Map
--  [ ] Make sure Minh: Inserts record to GeoPortal
--  [ ] Update Excel spreadsheet.
