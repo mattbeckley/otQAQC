@@ -190,6 +190,8 @@ config7['a_srs']='6339+5703'
 #----------------------------------------------------------------------
 #module to initialize the config file to all null values?
 config8 = ot.initializeNullConfig()
+
+config8['Shortname'] = shortname
 config8['CreateTileIndex'] = 1
 config8['log_dir'] = log_dir
 config8['ingestLog'] = os.path.join(log_dir,shortname+'_TileIndex_QAQCLog.txt')
@@ -198,7 +200,7 @@ config8['getFilesWild'] = '.*\.laz$'
 config8['ftype']     = 'f'
 config8['recursive'] = 0
 config8['Tileftype'] = 'LAZ'
-config8['OutputTileFile'] = os.path.join(bounds_base,'Shortname_TileIndex.shp')
+config8['OutputTileFile'] = os.path.join(bounds_base,shortname+'_TileIndex.shp')
 
 #Run module to re-check the raster metadata
 #ot.RunQAQC(config8)
@@ -208,6 +210,8 @@ config8['OutputTileFile'] = os.path.join(bounds_base,'Shortname_TileIndex.shp')
 #----------------------------------------------------------------------
 #module to initialize the config file to all null values?
 config9 = ot.initializeNullConfig()
+
+config9['Shortname'] = shortname
 config9['CreateTileIndex'] = 1
 config9['log_dir'] = log_dir
 config9['ingestLog'] = os.path.join(log_dir,shortname+'_OrthoTileIndex_QAQCLog.txt')
@@ -215,7 +219,7 @@ config9['getFilesDir'] =  '/volumes/OT6TB/Shortname/DSM'
 config9['getFilesWild'] = '.*\.tif$'
 config9['ftype']     = 'f'
 config9['recursive'] = 0
-config9['OutputTileFile'] = os.path.join(bounds_base,'Shortname_DSMTileIndex.shp')
+config9['OutputTileFile'] = os.path.join(bounds_base,shortname+'_DSMTileIndex.shp')
 config9['Tileftype'] = 'RASTER'
 
 #Run module to re-check the raster metadata

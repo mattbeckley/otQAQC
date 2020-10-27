@@ -106,7 +106,8 @@ def initializeNullConfig():
               'warp_t_srs':'',
               'CreateTileIndex':0,
               'OutputTileFile':'',
-              'Tileftype':''}
+              'Tileftype':'',
+              'ShortName':''}
 
     return config
 #----------------------------------------------------------------------
@@ -1810,7 +1811,7 @@ def RemoveFields(file,fields2delete=[],OnlyKeep=[]):
 #-----------------------------------------------------------------
 
 #----------------------------------------------------------------------
-def CreateTileIndex(files, log, out_index,
+def CreateTileIndex(files, log, out_index,shortname
                     wine_path='/Applications/Wine\ Stable.app/Contents/Resources/wine/bin/wine /Applications/LASTools/bin',
                     ftype='LAZ'):
     """
@@ -1880,6 +1881,68 @@ def CreateTileIndex(files, log, out_index,
         sys.exit()
 
 #End of CreateTileIndex
+#----------------------------------------------------------------------
+
+
+#----------------------------------------------------------------------
+def EditTileURL(inshape,shortname,URL_Base='https://opentopography.s3.sdsc.edu/pc-bulk/'):
+
+    #easiest way may be to add URL field, then remove the "file_name" field?  
+    driver = ogr.GetDriverByName("ESRI Shapefile")
+    dataSource = driver.Open(inshape, 0)
+    layer = dataSource.GetLayer()
+
+    lasfiles = []
+    for feature in layer:
+        lasfiles.append(feature.GetField("file_name"))
+
+
+    #close input shapefile, and empty memory.
+    feature = None
+    layer   = None
+    dataSource.Destroy()
+
+    
+    #re-open for writing
+    dataSource = driver.Open(inshape, 1)
+    layer = dataSource.GetLayer()
+    fieldname = "URL"
+    fielddef = ogr.FieldDefn(fieldname,ogr.OFTString)
+    
+    URL_path = URL_Base+shortname+'/'    
+
+    newURL = [URL_path+f for f in lasfiles]
+
+    #find longest length of all URL strings
+    longestval = max(newURL, key=len)                                                                                                                 
+    fielddef.SetWidth(len(longestval)+1)
+
+    #create the new "URL" column
+    layer.CreateField(fielddef)
+
+    # loop through the features in the layer
+    feature = layer.GetNextFeature()
+    count=0                                                                                                                                             
+    while feature:
+       feature.SetField(fieldname, newURL[count])
+
+       #this was a key step to write/update the attribute table!
+       layer.SetFeature(feature)
+
+       count += 1
+
+       # destroy the feature and get a new one
+       feature.Destroy()
+       feature = layer.GetNextFeature()
+
+    # close the data source and text file
+    datasource.Destroy()  
+        
+
+    #next remove the old field, file_name
+    
+
+#End of EditAtributes
 #----------------------------------------------------------------------
 
 
@@ -2428,7 +2491,7 @@ def RunQAQC(config):
     if config['CreateTileIndex']:
         stdout.info('Creating Tile Index...')
 
-        CreateTileIndex(infiles,log,config['OutputTileFile'],
+        CreateTileIndex(infiles,log,config['OutputTileFile'],config['ShortName'],
                         ftype=config['Tileftype'])
 
         stdout.info("PASS: Created Tile Index")        
