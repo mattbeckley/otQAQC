@@ -278,8 +278,11 @@ def CreatePDALInfo(files,outdir,outfile,errors='errors.txt',progress=1):
         if progress:
             printProgressBar(i+1, len(files), prefix = 'Create PDAL Log:', suffix = 'Complete', length = 50)
 
-    #remove final comma from file...
-    cmd5 = ['sed -i \'\' -e \'$ d \' '+out_fpath]
+    #remove final comma from file.  Mac/Linux behave different.
+    #if Using Mac...
+    #cmd5 = ['sed -i \'\' -e \'$ d \' '+out_fpath]
+    #if Using Linux:
+    cmd5 = ['sed -i -e \'$ d \' '+out_fpath]
     p5 = subprocess.run(cmd5,shell=True)
 
     #add final bracket to complete the JSON array
@@ -1555,7 +1558,7 @@ def getFiles(indir, wild='.*[LlAaZz]$',ftype='f',recursive=1):
     #get listing of files that match the reg expression and output a
     #list.  ireg will ignore case
     if recursive == 0:
-        find_cmd = 'find \"'+indir+'\" -iregex '+wild+' -type '+ftype+' -maxdepth 1 -print'
+        find_cmd = 'find \"'+indir+'\" -maxdepth 1 -iregex '+wild+' -type '+ftype+' -print'        
     if recursive == 1:
         find_cmd = 'find \"'+indir+'\" -iregex '+wild+' -type '+ftype+' -print'
 
