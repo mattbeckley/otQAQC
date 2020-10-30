@@ -191,7 +191,7 @@ config7['a_srs']='6339+5703'
 #module to initialize the config file to all null values?
 config8 = ot.initializeNullConfig()
 
-config8['Shortname'] = shortname
+config8['ShortName'] = shortname
 config8['CreateTileIndex'] = 1
 config8['log_dir'] = log_dir
 config8['ingestLog'] = os.path.join(log_dir,shortname+'_TileIndex_QAQCLog.txt')
@@ -211,7 +211,7 @@ config8['OutputTileFile'] = os.path.join(bounds_base,shortname+'_TileIndex.shp')
 #module to initialize the config file to all null values?
 config9 = ot.initializeNullConfig()
 
-config9['Shortname'] = shortname
+config9['ShortName'] = shortname
 config9['CreateTileIndex'] = 1
 config9['log_dir'] = log_dir
 config9['ingestLog'] = os.path.join(log_dir,shortname+'_RasterTileIndex_QAQCLog.txt')
