@@ -76,6 +76,15 @@
 -  *AddCRS2Header*.  Set this to 1 if you want to simply add the CRS
    info to the lidar header files.  Currently uses PDAL for this.
 
+-  *fsuffix*.  Set this to a string that will be appended to output
+   files.  This keyword is only used if you are using the module,
+   ADDCRS2Header, and don't want to overwrite the original file.  Used
+   in conjunction with "overwrite" parameter. 
+
+-  *overwrite*.  Set this to 0 or 1.  This keyword is only used if you
+   are using the module, ADDCRS2Header, and don't want to overwrite the
+   original file.  Used in conjunction with "fsuffix" parameter.
+
 -  *ftype*.  This is set to either 'f' of 'd' for 'file' or
    'directory'.  This value is getting fed directly to a unix find call.
    This keyword is only used with the module, getFiles.  The default is set
@@ -196,7 +205,7 @@
    the dataset using LASTools.
 
 -  *winePath*.  Path to LASTools executables.  Default is:
-                /Applications/LASTools/bin
+                /opt/LASTools/bin
 
 -  *bounds_LT*.  Full path to a shapefile that will contain the boundary
    created by LASTools.
@@ -275,3 +284,9 @@
    CreateTileIndex.  This shapefile will show the bounding boxes of
    all the files.  A zipped version of this shapefile should be placed
    in the cloud to help users download specific files from bulk.
+
+-  *shortname*.  This is the name you are going to use for the OT ingest.
+   In general, your directory structure will contain this name, and you
+   will use this throughout the process to identify this project.
+   This is listed again because you may want to pass this string into
+   the actual code.

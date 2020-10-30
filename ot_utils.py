@@ -492,6 +492,7 @@ def Translate2Tiff(files,log,outdir_1="",xblock=256,yblock=256,
             cmd = ['gdal_translate -of GTIFF -co \"COMPRESS=LZW\"'
                    +' -co \"TILED=YES\" -co \"blockxsize='+str(xblock)+'\"'
                    +' -co \"blockysize='+str(yblock)+'\"'
+                   +' -co \"COPY_SRC_OVERVIEWS=YES\" '
                    +' \"'+infile+'\"'
                    +' '+'\"'+outfile+'\" 2>> \"'+errorfile+'\"']
 
@@ -603,6 +604,7 @@ def Warp2Tiff(files,log,t_srs,outdir_1='',xblock=128,yblock=128,
             cmd = ['gdalwarp -co \"COMPRESS=LZW\"'
                    +' -co \"TILED=YES\" -co \"blockxsize='+str(xblock)+'\"'
                    +' -co \"blockysize='+str(yblock)+'\"'
+                   +' -co \"COPY_SRC_OVERVIEWS=YES\" '                   
                    +' -t_srs \"EPSG:'+str(t_srs)+'\"'+' \"'+infile+'\"'
                    +' '+'\"'+outfile+'\" 2>> \"'+errorfile+'\"']
 
@@ -1150,7 +1152,7 @@ def checkLASVersion(json):
 
 #----------------------------------------------------------------------    
 def Convert2LAZ(files,pipeline,log_dir,outdir='',progress=1,method='pdal',
-                wine_path='/Applications/Wine\ Stable.app/Contents/Resources/wine/bin/wine /Applications/LASTools/bin'):
+                wine_path='/opt/wine-stable/bin/wine /opt/LAStools/bin/'):
     
     #convert from las to laz using pdal OR lastools...
 
@@ -1450,7 +1452,7 @@ def DissolveBounds(inbounds, outbounds,buffer=0):
 
 #----------------------------------------------------------------------
 def LASBoundary(files,out_boundary,rand_fract=0.2,concavity=100,
-                wine_path='/Applications/Wine\ Stable.app/Contents/Resources/wine/bin/wine /Applications/LASTools/bin'):
+                wine_path='/opt/wine-stable/bin/wine /opt/LAStools/bin/'):
 
     #Create a Boundary using the lastools lasboundary.exe 
 
@@ -1811,8 +1813,8 @@ def RemoveFields(file,fields2delete=[],OnlyKeep=[]):
 #-----------------------------------------------------------------
 
 #----------------------------------------------------------------------
-def CreateTileIndex(files, log, out_index,shortname
-                    wine_path='/Applications/Wine\ Stable.app/Contents/Resources/wine/bin/wine /Applications/LASTools/bin',
+def CreateTileIndex(files, log, out_index,shortname,
+                    wine_path='/opt/wine-stable/bin/wine /opt/LAStools/bin/',
                     ftype='LAZ'):
     """
     This module will create a tile index of the broad bounding box of
@@ -1852,6 +1854,12 @@ def CreateTileIndex(files, log, out_index,shortname
            print(p2)
            pdb.set_trace()           
 
+        if CheckFile(out_index):
+            EditTileURL(out_index,shortname)
+        else:
+           print('Error Creating Tile Index with LASTools..\n')
+           pdb.set_trace()           
+            
     elif ftype == 'RASTER':
         CWD = os.getcwd()
         #assume all files are in the same directory
@@ -1875,7 +1883,10 @@ def CreateTileIndex(files, log, out_index,shortname
         if (p4.returncode == 1):
            print('Error Creating Tile Index with gdaltindex...\n')
            print(p4)
-           pdb.set_trace()           
+           pdb.set_trace()
+        else:
+           print('Error Creating Tile Index with LASTools..\n')
+           pdb.set_trace()                   
     else:
         print('You must set ftype to either "LAZ or "RASTER".  Exiting without execution.')
         sys.exit()
@@ -1885,13 +1896,17 @@ def CreateTileIndex(files, log, out_index,shortname
 
 
 #----------------------------------------------------------------------
-def EditTileURL(inshape,shortname,URL_Base='https://opentopography.s3.sdsc.edu/pc-bulk/'):
+def EditTileURL(inshape,shortname,
+                URL_Base='https://opentopography.s3.sdsc.edu/pc-bulk/',
+                field2remove="file_name"):
+    
+    #easiest way may be to read in original attribute table,
+    #add URL field, then remove the "file_name" field?  
 
-    #easiest way may be to add URL field, then remove the "file_name" field?  
     driver = ogr.GetDriverByName("ESRI Shapefile")
     dataSource = driver.Open(inshape, 0)
     layer = dataSource.GetLayer()
-
+    
     lasfiles = []
     for feature in layer:
         lasfiles.append(feature.GetField("file_name"))
@@ -1921,8 +1936,8 @@ def EditTileURL(inshape,shortname,URL_Base='https://opentopography.s3.sdsc.edu/p
     layer.CreateField(fielddef)
 
     # loop through the features in the layer
-    feature = layer.GetNextFeature()
-    count=0                                                                                                                                             
+    feature = layer.GetNextFeature()    
+    count=0
     while feature:
        feature.SetField(fieldname, newURL[count])
 
@@ -1935,13 +1950,29 @@ def EditTileURL(inshape,shortname,URL_Base='https://opentopography.s3.sdsc.edu/p
        feature.Destroy()
        feature = layer.GetNextFeature()
 
-    # close the data source and text file
-    datasource.Destroy()  
+    #close input shapefile, and empty memory.
+    feature = None
+    layer   = None
+    dataSource.Destroy()  
         
+    #next remove the old field, file_name.
+    #Maybe it doesn't hurt to leave it in?
+    """
+    dataSource = driver.Open(inshape, 1)
+    layer      = dataSource.GetLayer()
+    findex     = layer.FindFieldIndex(field2remove,1)
+    if findex == -1:
+        print( "Field: "+field2remove+" not found!")
+        print( "Not removing: "+field2remove)
+    else:
+        layer.DeleteField(findex)
 
-    #next remove the old field, file_name
+    #close input shapefile, and empty memory.
+    feature = None
+    layer   = None
+    dataSource.Destroy()  
+    """
     
-
 #End of EditAtributes
 #----------------------------------------------------------------------
 

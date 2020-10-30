@@ -56,8 +56,15 @@
   this made the header values blow up, and this caused an issue with
   Minh's input.  So, need to check for empty files.
 - 07/07/2020.  Added ability to convert kml to kmz.  Also updated
-ingest python and org files. 
-
+  ingest python and org files. 
+- 10/29/2020.  I updated the tile index file for LAZ so that it
+  includes the full URL to the laz file on the cloud.  With this, if
+  you open this shapefile in Global Mapper, you are able to download
+  the tile directly when you click on it with the info tool.  I had to
+  add a module to edit the attribute table and add a URL field.  Note
+  I am not doing this for the rasters as they tend to be larger and
+  not ad much of an issue.  Plus, I would have to put in a lot of
+  logic to deal with DSM, DTM, orthos, etc.
 *  BugFixes
 -  
 
