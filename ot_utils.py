@@ -1887,9 +1887,7 @@ def CreateTileIndex(files, log, out_index,shortname,
            print('Error Creating Tile Index with gdaltindex...\n')
            print(p4)
            pdb.set_trace()
-        else:
-           print('Error Creating Tile Index with LASTools..\n')
-           pdb.set_trace()                   
+
     else:
         print('You must set ftype to either "LAZ or "RASTER".  Exiting without execution.')
         sys.exit()
