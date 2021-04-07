@@ -65,9 +65,20 @@
   I am not doing this for the rasters as they tend to be larger and
   not ad much of an issue.  Plus, I would have to put in a lot of
   logic to deal with DSM, DTM, orthos, etc.
-*  BugFixes
--  
-
+- 04/07/2021. I updated the module ADDCRS2Header.  This module used
+  PDAL, and PDAL modifies the header without your consent.  I tried to
+  implement the --foward=header or --forward=all options, but on some
+  files for the project, CA18_Thompson, it was failing on this, and
+  then it just writes out a blank file.  So, I added the bare minimum
+  that I want to preserve:
+  --writers.las.forward="major_version,minor_version,creation_doy,creation_year"
+  This seems to be working, but it does slow down the process A LOT.
+  As a reminder I need this because LAStools doens't have an update
+  PROJ database.  The NCALM datasets are using the NAD 83 (2011)
+  realization, and only PDAL has this.  So, if I want to have these
+  versions of the CRS in the metadata, I need to use PDAL to add the
+  header info.
+*  BugFixes 
 *  config File issues
 -  GUI will provide flexibility, but you can't run a big job that 
    checks everything.  It will be a stepwise process.  it will also

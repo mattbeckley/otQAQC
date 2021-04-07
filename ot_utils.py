@@ -1340,9 +1340,11 @@ def AddCRS2Header(files,log_dir,pipeline,outdir='',
             #abs_outfile = os.path.join(absPath,outfile)
             #abs_infile  = os.path.join(absPath,infile)
             #write errors to a file
-            cmd = ['pdal pipeline '+pipeline+' --readers.las.filename=\"'
-                   +infile+'\" --writers.las.filename=\"'+outfile+'\"'
-                   +' 2>> '+os.path.join(log_dir,'CRSDefineErrors.txt')]
+            cmd = ['pdal pipeline '+pipeline+
+                   ' --readers.las.filename=\"'+infile+
+                   '\" --writers.las.filename=\"'+outfile+
+                   '\" --writers.las.forward=\"major_version,minor_version,creation_doy,creation_year\" 2>> \"'+
+                   os.path.join(log_dir,'CRSDefineErrors.txt')+'\"']
 
             #needed the shell=True for this to work
             p = subprocess.run(cmd,shell=True)#,stderr=subprocess.PIPE)
