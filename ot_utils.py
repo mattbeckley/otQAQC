@@ -752,7 +752,7 @@ def SetRasterCRS(infiles,log,a_srs,progress=1):
     log.info('------------------------------------------------------')            
 
     if progress:
-        printProgressBar(0, len(files), prefix = 'Add CRS to Rasters:', suffix = 'Complete', length = 50)
+        printProgressBar(0, len(infiles), prefix = 'Add CRS to Rasters:', suffix = 'Complete', length = 50)
     
     for i,f in enumerate(infiles):
         fcheck = CheckFile(f)
@@ -774,7 +774,7 @@ def SetRasterCRS(infiles,log,a_srs,progress=1):
 
 
         if progress:
-            printProgressBar(i+1, len(files), prefix = 'Add CRS to Rasters:', suffix = 'Complete', length = 50)
+            printProgressBar(i+1, len(infiles), prefix = 'Add CRS to Rasters:', suffix = 'Complete', length = 50)
 
     if any(errors):
         log.info("WARNING: Problem Adding CRS info to some Raster(s)")
