@@ -52,6 +52,9 @@
 - [ ] Verify that tile index is in cloud
 - [ ] Uploaded LAZ, and rasters with rsync to beta on xx/xx/xxxx
 - [ ] Add dataset to PI DataProvider List for metrics.
+- [ ] Check if LAZ/Raster are enabled for differencing
+      https://portal.opentopography.org/addDifferencing
+      https://portal.opentopography.org/addRasterDifferencing
 - [ ] Make sure Minh: Copies to SDSC Cloud for bulk downloads
 - [ ] Make sure Minh: Updates KML for “Find Data” Map
 - [ ] Make sure Minh: Inserts record to GeoPortal
@@ -101,3 +104,6 @@
 -  [ ] Create tile index for shapefiles 
 -  [ ] Upload tile index to cloud
 -  [ ] Add PIs to list of private users
+-  [ ] Check if LAZ/Raster are enabled for differencing
+       https://portal.opentopography.org/addDifferencing
+       https://portal.opentopography.org/addRasterDifferencing
